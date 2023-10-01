@@ -32,13 +32,15 @@ class PostController extends Controller
 
     public function create(PostRequest $request,Post $_post)
     {
-       // Model binding và xác thực dữ liệu đã được thực hiện tự động
-       $data = $request->validated();
+       try{
+            $data = $request->validated();
 
-       $new_post = $this->post->create($data);
-
-
-       // Trả về response thành công
-       return response()->success($data,"Tạo bài viết thành công !", 201);
+            $new_post = $this->post->create($data);
+    
+            // Trả về response thành công
+            return response()->success($data,"Tạo bài viết thành công !", 201);
+       }catch(Exception $ex){
+            return response()->error($ex, Response::HTTP_INTERNAL_SERVER_ERROR);
+       }
     }
 }

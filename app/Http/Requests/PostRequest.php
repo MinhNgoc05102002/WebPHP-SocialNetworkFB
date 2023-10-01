@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+
 class PostRequest extends FormRequest
 {
     /**
@@ -29,24 +30,13 @@ class PostRequest extends FormRequest
         ];
     }
 
-    public function failedValidation(Validator $validator)
-
+    public function messages()
     {
-
-       return response()->error("error",404);
-
+        return [
+            'content.max' => 'content is max la 123',
+            'username.max' => 'user is max la 123',
+            'content.required' => 'content is required 123',
+            'username.required' => 'username is required 123'
+        ];
     }
-
-
-
-    // public function messages()
-
-    // {
-
-    //     return [
-    //         'title.required' => ‘Title is required',
-    //         'body.required' => ‘Body is required'
-    //     ];
-
-    // }
 }
