@@ -29,7 +29,7 @@ class PostController extends Controller
         }
     }
 
-    public function create(PostRequest $request)
+    public function create(PostRequest $request,Post $_post)
     {
        // Model binding và xác thực dữ liệu đã được thực hiện tự động
        $data = $request->validated();
@@ -38,6 +38,6 @@ class PostController extends Controller
 
 
        // Trả về response thành công
-       return response()->success($new_post,"Tạo bài viết thành công !", 201);
+       return response()->success($data,"Tạo bài viết thành công !", 201);
     }
 }

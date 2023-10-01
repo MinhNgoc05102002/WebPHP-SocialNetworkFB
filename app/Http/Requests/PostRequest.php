@@ -24,8 +24,29 @@ class PostRequest extends FormRequest
     public function rules()
     {
         return [
-            'content' => 'required|string|max:255',
-            'username' => 'required|string|max:50',
+            'content' => 'required|string|max:10',
+            'username' => 'required|string|max:10',
         ];
     }
+
+    public function failedValidation(Validator $validator)
+
+    {
+
+       return response()->error("error",404);
+
+    }
+
+
+
+    // public function messages()
+
+    // {
+
+    //     return [
+    //         'title.required' => ‘Title is required',
+    //         'body.required' => ‘Body is required'
+    //     ];
+
+    // }
 }
