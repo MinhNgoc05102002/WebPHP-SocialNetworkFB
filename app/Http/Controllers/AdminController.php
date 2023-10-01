@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Account;
 use App\Models\Report;
+use App\Http\Controllers\Exception;
 
 class AdminController extends Controller
 {
