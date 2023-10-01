@@ -39,4 +39,15 @@ class Post extends Model
                             WHERE datediff(createdAt, now()) < 7; ');
         return $num[0];
     }
+
+    public function getResultPost($data){
+
+        $stringSearch = DB::select('
+                                SELECT * FROM post WHERE content LIKE ?',
+                                ['%' . $data['string_search'] . '%']
+                                );
+        // dd($data['string_search']);
+        return $stringSearch;
+    }
 }
+

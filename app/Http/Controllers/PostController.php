@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Http\Requests\PostRequest;
 
 use DB;
+use Exception;
 
 class PostController extends Controller
 {
