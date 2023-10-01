@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ActionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,3 +32,8 @@ Route::prefix('admin')->group(function () {
     Route::get('/get-overview', [AdminController::class,'getOverview']);
 
 });
+Route::prefix('action')->group(function () {
+    Route::get('/get-resultview', [ActionController::class,'getResultview']);
+
+});
+
