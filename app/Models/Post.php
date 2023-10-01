@@ -16,20 +16,27 @@ class Post extends Model
             $data['username'],
             $data['content'],
         ]);
-        return $post; 
+        return $post;
     }
 
     // public function update($data){
     //     $post = DB::update('UPDATE post SET content = ?',[
     //         $data['content'],
     //     ]);
-    //     return $post; 
+    //     return $post;
     // }
 
     // public function delete($data){
     //     $post = DB::insert('DELETE FROM post WHERE postId = ?',[
     //         $data['id'],
     //     ]);
-    //     return $post; 
+    //     return $post;
     // }
+
+    public function getNumRecentPost(){
+        $num = DB::select(' SELECT count(*) as num_new_post
+                            FROM post
+                            WHERE datediff(createdAt, now()) < 7; ');
+        return $num[0];
+    }
 }

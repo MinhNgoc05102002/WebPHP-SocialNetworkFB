@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,4 +25,9 @@ Route::prefix('post')->group(function () {
     // Route::get('/getFilter', [PostController::class,'getFilter']);
 
     // Route::get('/getFilter', [PostController::class,'getFilter']);
+});
+
+Route::prefix('admin')->group(function () {
+    Route::get('/get-overview', [AdminController::class,'getOverview']);
+
 });
