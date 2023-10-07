@@ -20,7 +20,7 @@ class AuthController extends Controller
     public function register(Request $request){
         $validator = Validator::make($request->all(),
         [
-         'username'=>'required', 
+         'username'=>'required',
          'password'=>'required',
          'email'=>'required',
         ]
@@ -39,7 +39,7 @@ class AuthController extends Controller
             if (auth('sanctum')->check()) {
                 return response()->error("Bạn đã đăng nhập và không thể truy cập API đăng nhập lại.", 403);
             }
-            
+
             // Xác thực người dùng và lấy thông tin người dùng
             if (Auth::attempt($request->only('email', 'password'))) {
                 $user = Auth::user();
@@ -68,7 +68,7 @@ class AuthController extends Controller
         Auth::user()->tokens->each(function ($token, $key) {
             $token->delete();
         });
-    
+
         return response()->success([],"Đăng xuất thành công !",200);;
     }
 }
