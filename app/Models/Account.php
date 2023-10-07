@@ -3,14 +3,45 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use DB;
 
 
-class Account extends Model
+class Account extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
     protected $table = 'Account';
+    public $timestamps = false;
+    protected $primaryKey = 'username';
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'username',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    public function getInfoAccount($email){
+        $num = DB::select(' SELECT username, email, avatar, phone, location
+                            FROM account
+                            WHERE email = ? ',[$email]);
+        return $num[0];
+    }
 
     public function getNumNewAccount(){
         $num = DB::select(' SELECT count(*) as num_new_acc
