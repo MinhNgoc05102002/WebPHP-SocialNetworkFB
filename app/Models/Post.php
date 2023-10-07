@@ -12,7 +12,7 @@ class Post extends Model
     protected $table = 'Post';
 
     public function create($data){
-        $post = DB::insert('INSERT INTO post (username,content) values (?, ?)',[
+        $post = DB::insert('INSERT INTO post (username,content,createdAt,) values (?, ?)',[
             $data['username'],
             $data['content'],
         ]);

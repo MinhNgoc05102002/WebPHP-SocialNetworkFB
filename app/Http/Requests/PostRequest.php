@@ -25,18 +25,17 @@ class PostRequest extends FormRequest
     public function rules()
     {
         return [
-            'content' => 'required|string|max:10',
-            'username' => 'required|string|max:10',
+            'content' => 'required|string|',
+            'privacy' => 'required|string',
+            'username' => 'required|string'
         ];
     }
 
     public function messages()
     {
         return [
-            'content.max' => 'content is max la 123',
-            'username.max' => 'user is max la 123',
-            'content.required' => 'content is required 123',
-            'username.required' => 'username is required 123'
+            'content.required' => 'content không được để chống',
+            'privacy.required' => 'privacy không được để chống'
         ];
     }
 }
