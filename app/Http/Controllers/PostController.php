@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Post;
+use App\Models\Account;
 use App\Http\Requests\PostRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,8 +17,10 @@ use Exception;
 class PostController extends Controller
 {
     protected $post;
-    public function __construct(Post $_post) {
+    protected $account;
+    public function __construct(Post $_post,Account $account) {
         $this->post = $_post;
+        $this->account = $account;
     }
 
     public function index(Request $request)
@@ -28,7 +31,7 @@ class PostController extends Controller
             $items = Post::paginate($perPage, ['*'], 'page', $page);
             return response()->success($items,"Lấy danh sách thành công", Response::HTTP_OK);
         }catch(Exception $ex){
-            return response()->error("Lấy danh sách thất bại", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($ex, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -36,15 +39,17 @@ class PostController extends Controller
     {
        try{
             $validate = $request->validated();
-            // $new_post = $this->post->create($data);
             $account = $this->account->getInfoAccount($request->input('username'));
-            if(!$account){
-                return response()->success($account,"username không tồn tại !", 201);
+            if($account){
+                $newPost = $this->post->create($request->only('username','content','audience_type'));
+
+                return response()->success($newPost,"Tạo bài viết thành công !", 201);
             }
+
+            return response()->error("Tài khoản không hợp lệ", 401);
             // Trả về response thành công
-            return response()->success($data,"Tạo bài viết thành công !", 201);
        }catch(Exception $ex){
-            return response()->error($ex, Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw $ex;
        }
     }
 }

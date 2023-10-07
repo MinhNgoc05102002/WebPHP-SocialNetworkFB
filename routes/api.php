@@ -35,6 +35,7 @@ Route::prefix('action')->group(function () {
 
 // private router
 Route::middleware('auth:sanctum')->group(function () {
+    
     Route::post('/logout', [AuthController::class,'logout']);
 
     Route::prefix('post')->group(function () {
@@ -47,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // public router
 Route::post('/login', [AuthController::class,'login']);
 Route::post('/register', [AuthController::class,'register']);
+Route::post('/upload-file', [AuthController::class,'uploadFile']);
+Route::get('/media-file/{image}', [AuthController::class,'show']);
 
 
 

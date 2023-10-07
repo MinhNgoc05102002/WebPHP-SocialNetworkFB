@@ -4,8 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-
-class PostRequest extends FormRequest
+class AccountRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -35,6 +34,7 @@ class PostRequest extends FormRequest
     {
         return [
             'content.required' => 'content không được để trống',
+            'content.string' => 'content phải là dạng chuỗi',
             'audience_type.required' => 'audience_type không được để trống',
             'username.required' => 'username không được để trống'
         ];
