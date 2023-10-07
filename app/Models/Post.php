@@ -12,7 +12,7 @@ class Post extends Model
     protected $table = 'Post';
 
     public function create($data){
-        $post = DB::insert('INSERT INTO post (username,content) values (?, ?)',[
+        $post = DB::insert('INSERT INTO Post (username,content) values (?, ?)',[
             $data['username'],
             $data['content'],
         ]);
@@ -33,17 +33,17 @@ class Post extends Model
     //     return $post;
     // }
 
-    public function getNumRecentPost(){
+    public function getNumNewPost(){
         $num = DB::select(' SELECT count(*) as num_new_post
-                            FROM post
-                            WHERE datediff(createdAt, now()) < 7; ');
+                            FROM Post
+                            WHERE datediff(created_at, now()) < 7; ');
         return $num[0];
     }
 
     public function getResultPost($data){
 
         $stringSearch = DB::select('
-                                SELECT * FROM post WHERE content LIKE ?',
+                                SELECT * FROM Post WHERE content LIKE ?',
                                 ['%' . $data['string_search'] . '%']
                                 );
         // dd($data['string_search']);
