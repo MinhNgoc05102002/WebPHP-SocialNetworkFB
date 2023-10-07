@@ -57,7 +57,7 @@ class AuthController extends Controller
                 return response()->success($result,"Đăng nhập thành công !",200);
             }
             // Xác thực thất bại
-            return response()->error('Unauthorized', 401);
+            return response()->error('Sai tài khoản này không tồn tại !', 200);
         } catch (\Throwable $th) {
             //throw $th;
         }
@@ -69,6 +69,6 @@ class AuthController extends Controller
             $token->delete();
         });
     
-        return response()->json(['message' => 'Logout successful']);
+        return response()->success([],"Đăng xuất thành công !",200);;
     }
 }

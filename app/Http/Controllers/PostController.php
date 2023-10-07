@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Post;
 use App\Http\Requests\PostRequest;
+use Illuminate\Support\Facades\Auth;
+
 
 use DB;
 use Exception;
@@ -30,13 +32,15 @@ class PostController extends Controller
         }
     }
 
-    public function create(PostRequest $request,Post $_post)
+    public function create(PostRequest $request)
     {
        try{
-            $data = $request->validated();
-
-            $new_post = $this->post->create($data);
-    
+            $validate = $request->validated();
+            // $new_post = $this->post->create($data);
+            $account = $this->account->getInfoAccount($request->input('username'));
+            if(!$account){
+                return response()->success($account,"username không tồn tại !", 201);
+            }
             // Trả về response thành công
             return response()->success($data,"Tạo bài viết thành công !", 201);
        }catch(Exception $ex){
