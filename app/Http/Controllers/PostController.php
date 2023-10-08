@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Account;
 use App\Http\Requests\PostRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 
 use DB;
@@ -27,7 +28,7 @@ class PostController extends Controller
     {
         try{
             $page = $request->input('page', 1); // Số trang mặc định là 1.
-            $perPage = $request->input('page_size', 10); // Số bản ghi mỗi trang mặc định là 10.
+            $perPage = $request->input('page_size', 50); // Số bản ghi mỗi trang mặc định là 10.
             $items = Post::paginate($perPage, ['*'], 'page', $page);
             return response()->success($items,"Lấy danh sách thành công", Response::HTTP_OK);
         }catch(Exception $ex){
@@ -35,15 +36,48 @@ class PostController extends Controller
         }
     }
 
-    public function create(PostRequest $request)
+    public function handlePost(PostRequest $request)
     {
        try{
             $validate = $request->validated();
             $account = $this->account->getInfoAccount($request->input('username'));
             if($account){
-                $newPost = $this->post->create($request->only('username','content','audience_type'));
+                $func = $request->input('function');
+                if($func === 'C'){
+                    // tạo bài viết
+                    $newPost = $this->post->createPost($request->only('username','content','audience_type','media'));
+                    
+                    return response()->success($newPost,"Tạo bài viết thành công !", 201);
+                }elseif($func === 'U'){
+                    // cập nhật bài viết
+                    $postFind = Post::find($request->input('id_post'));
+                    if($postFind){
+                        $updatedPost = $this->post->updatePost(
+                            $request->only('username','content','audience_type','media','id_post'),
+                            $postFind
+                        );
+                    }else{
+                        return response()->error("Bài viết không tồn tại !", 401);
+                    }
+    
+                    return response()->success($updatedPost,"Cập nhật bài viết thành công !", 201);
+                }elseif($func === 'D'){
+                    // Xóa bài viết
+                    $postFind = Post::find($request->input('id_post'));
+                    if($postFind){
+                        $updatedPost = $this->post->deletePost(
+                            $request->only('id_post'),
+                            $postFind
+                        );
+                    }else{
+                        return response()->error("Bài viết không tồn tại !", 401);
+                    }
+    
+                    return response()->success($updatedPost,"Xóa bài viết thành công !", 201);
+                }else{
+                    return response()->error("Chức năng không tồn tại !", 401);
+                }
 
-                return response()->success($newPost,"Tạo bài viết thành công !", 201);
             }
 
             return response()->error("Tài khoản không hợp lệ", 401);
