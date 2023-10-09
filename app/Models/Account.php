@@ -36,11 +36,11 @@ class Account extends Authenticatable
         'remember_token',
     ];
 
-    public function getInfoAccount($email){
+    public function getInfoAccount($username){
         $num = DB::select(' SELECT username, email, avatar, phone, location
-                            FROM Account
-                            WHERE email = ? ',[$email]);
-        return $num[0];
+                            FROM db_lab.Account
+                            WHERE username = ? ',[$username]);                    
+        return $num;
     }
 
     public function getNumNewAccount(){

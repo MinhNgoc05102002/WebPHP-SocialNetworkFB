@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\File;
+use DB;
 
 class AuthController extends Controller
 {
@@ -44,11 +46,15 @@ class AuthController extends Controller
             if (Auth::attempt($request->only('email', 'password'))) {
                 $user = Auth::user();
                 // Tạo token Sanctum cho người dùng
+                
+                $account = DB::select(' SELECT username, email, avatar, phone, location
+                            FROM db_lab.Account
+                            WHERE email = ? ',[$request->input('email')]);
+                
                 $token = $user->createToken('token-name')->plainTextToken;
-                $account = $this->account->getInfoAccount($request->input('email'));
-
+    
                 $result = [
-                    'data'=>$account,
+                    'data'=>$account[0],
                     'authentication' => [
                         'access_token' => $token,
                         'token_type' => 'Bearer',
@@ -58,8 +64,8 @@ class AuthController extends Controller
             }
             // Xác thực thất bại
             return response()->error('Sai tài khoản này không tồn tại !', 200);
-        } catch (\Throwable $th) {
-            //throw $th;
+        } catch (Exception $th) {
+            throw $th;
         }
     }
 
@@ -70,5 +76,43 @@ class AuthController extends Controller
         });
 
         return response()->success([],"Đăng xuất thành công !",200);;
+    }
+
+    public function uploadFile(Request $request){
+        try {
+           // up ảnh
+           $imageInfo = array();
+           if ($request->hasFile('media')) {
+               $images = $request->file('media');
+               foreach ($images as $image) {
+                   $originalName = $image->getClientOriginalName();
+                   $extension = $image->getClientOriginalExtension();
+                   $randomString = uniqid();
+                   $imageName = time() . '_' . $originalName . '_' . $randomString . '.' . $extension;
+                   $image->move(public_path('storage/media'), $imageName);
+                   $imageInfo[] = ['type' => $image->getClientOriginalExtension(),'name' => $imageName];
+               }
+               return response()->success(['file_info' => $imageInfo],'Tải lên ảnh thành công',200);
+           }
+           return response()->error('Tải lên ảnh thất bại !',400);
+        } catch (Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function show($image)
+    {
+        $path = storage_path('app/public/media/' . $image);
+        
+        if (!File::exists($path)) {
+            abort(404);
+        }
+        
+        $file = File::get($path);
+        $type = File::mimeType($path);
+
+        $response = response($file, 200)->header("Content-Type", $type);
+
+        return $response;
     }
 }
