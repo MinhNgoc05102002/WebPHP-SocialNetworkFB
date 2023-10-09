@@ -39,7 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('post')->group(function () {
         Route::get('/get-list', [PostController::class,'index']);
-    
+
         Route::post('/create', [PostController::class,'create']);
     });
 });

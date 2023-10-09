@@ -61,4 +61,15 @@ class Account extends Authenticatable
         // dd($data['string_search']);
         return $stringSearch;
     }
+
+    public function checkDuplicate($username, $email){
+        $count = $this->where(function ($query) use ($username, $email) {
+            $query->where('username', $username)
+                ->orWhere('email', $email);
+        })->count();
+
+        return $count > 0;
+    }
+
+
 }
