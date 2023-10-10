@@ -9,6 +9,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
+use Exception;
 use DB;
 
 class AuthController extends Controller
@@ -20,25 +21,24 @@ class AuthController extends Controller
         $this->account = $_account;
     }
     public function register(Request $request){
-        $validator = Validator::make($request->all(),
+        try{
+            $validator = Validator::make($request->all(),
         [
-         'username'=>'required',
-         'password'=>'required',
-         'email'=>'required',
          'fullname'=>['required', 'regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u'],
          'username' => ['required', 'regex:/^[a-zA-Z0-9]+$/'],
          'password'=> ['required', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
          'email'=>['required','email'],
-         'day_of_birth'=>'required',
-         'gender'=>'required',
+         'day_of_birth'=>['required'],
+         'gender'=>['required|string'],
         ]
         );
         if ($validator->fails()) {
             // Xử lý khi có lỗi trong validator
             return response()->error($validator->errors(), 400);
         }
-        $accountModel = new Account();
-        if($accountModel->checkDuplicate($request->input('username'), $request->input('email'))){
+
+        // $accountModel = new Account();
+        if($this->account->checkDuplicate($request->input('username'), $request->input('email'))){
             return response()->error('email hoặc username đã tồn tại.',400);
         }
 
@@ -53,7 +53,12 @@ class AuthController extends Controller
         if(!$account){
             return response()->error('Không thể tạo tài khoản.', 500);
         }
-        return response()->success('Tài khoản đã được tạo thành công.', 200);
+        return response()->success($account, 'Tài khoản đã được tạo thành công.', 200);
+
+        }catch(Exception $ex){
+            throw $ex;
+        }
+
     }
 
     public function login(Request $request)
