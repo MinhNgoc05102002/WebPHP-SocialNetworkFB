@@ -15,6 +15,7 @@ class Account extends Authenticatable
     protected $table = 'Account';
     public $timestamps = false;
     protected $primaryKey = 'username';
+    public $incrementing = false;
     /**
      * The attributes that are mass assignable.
      *
@@ -24,6 +25,11 @@ class Account extends Authenticatable
         'username',
         'email',
         'password',
+        'fullname',
+        'day_of_birth',
+        'gender',
+        'created_at',
+
     ];
 
     /**
@@ -39,7 +45,7 @@ class Account extends Authenticatable
     public function getInfoAccount($username){
         $num = DB::select(' SELECT username, email, avatar, phone, location
                             FROM db_lab.Account
-                            WHERE username = ? ',[$username]);                    
+                            WHERE username = ? ',[$username]);
         return $num;
     }
 
