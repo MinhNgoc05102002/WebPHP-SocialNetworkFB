@@ -23,34 +23,38 @@ class AuthController extends Controller
     public function register(Request $request){
         try{
             $validator = Validator::make($request->all(),
-                [
-                    'fullname'=>['required', 'regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u'],
-                    'username' => ['required', 'regex:/^[a-zA-Z0-9]+$/'],
-                    'password'=> ['required', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
-                    'email'=>['required','email'],
-                    'day_of_birth'=>['required'],
-                    'gender'=>['required|string'],
-                ]
-            );
-            if ($validator->fails()) {
-                // Xử lý khi có lỗi trong validator
-                return response()->error($validator->errors(), 400);
-            }
+            [
+            'fullname'=>['required', 'regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u'],
+            'username' => ['required', 'regex:/^[a-zA-Z0-9_-]+$/'],
+            'password'=> ['required', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+            'email'=>['required','email'],
+            'day_of_birth'=>['required'],
+            'gender'=>['required'],
+            ]
+        );
+        if ($validator->fails()) {
+            // Xử lý khi có lỗi trong validator
+            return response()->error($validator->errors(), 400);
+        }
 
-            // $accountModel = new Account();
-            if($this->account->checkDuplicate($request->input('username'), $request->input('email'))){
-                return response()->error('email hoặc username đã tồn tại.',400);
-            }
-
-            $account = Account::create([
-                'fullname' => $request->input('fullname'),
-                'username' => $request->input('username'),
-                'password' => Hash::make($request->input('password')),
-                'email' => $request->input('email'),
-                'day_of_birth' => $request->input('day_of_birth'),
-                'gender' => $request->input('gender'),
-            ]);
-
+        // $accountModel = new Account();
+        if($this->account->checkDuplicate($request->input('username'), $request->input('email'))){
+            return response()->error('email hoặc username đã tồn tại.',400);
+        }
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        $account = Account::create([
+            'fullname' => $request->input('fullname'),
+            'username' => $request->input('username'),
+            'password' => Hash::make($request->input('password')),
+            'email' => $request->input('email'),
+            'day_of_birth' => date($request->input('day_of_birth')),
+            'gender' => $request->input('gender'),
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+        if(!$account){
+            return response()->error('Không thể tạo tài khoản.', 500);
+        }
+        return response()->success($account, 'Tài khoản đã được tạo thành công.', 200);
             if(!$account){
                 return response()->error('Không thể tạo tài khoản.', 500);
             }
