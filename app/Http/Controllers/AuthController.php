@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\File;
+use DB;
 
 class AuthController extends Controller
 {
@@ -20,6 +22,9 @@ class AuthController extends Controller
     public function register(Request $request){
         $validator = Validator::make($request->all(),
         [
+         'username'=>'required',
+         'password'=>'required',
+         'email'=>'required',
          'fullname'=>['required', 'regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u'],
          'username' => ['required', 'regex:/^[a-zA-Z0-9]+$/'],
          'password'=> ['required', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
@@ -63,11 +68,15 @@ class AuthController extends Controller
             if (Auth::attempt($request->only('email', 'password'))) {
                 $user = Auth::user();
                 // Tạo token Sanctum cho người dùng
+
+                $account = DB::select(' SELECT username, email, avatar, phone, location
+                            FROM db_lab.Account
+                            WHERE email = ? ',[$request->input('email')]);
+
                 $token = $user->createToken('token-name')->plainTextToken;
-                $account = $this->account->getInfoAccount($request->input('email'));
 
                 $result = [
-                    'data'=>$account,
+                    'data'=>$account[0],
                     'authentication' => [
                         'access_token' => $token,
                         'token_type' => 'Bearer',
@@ -76,9 +85,9 @@ class AuthController extends Controller
                 return response()->success($result,"Đăng nhập thành công !",200);
             }
             // Xác thực thất bại
-            return response()->error('Unauthorized', 401);
-        } catch (\Throwable $th) {
-            //throw $th;
+            return response()->error('Sai tài khoản này không tồn tại !', 200);
+        } catch (Exception $th) {
+            throw $th;
         }
     }
 

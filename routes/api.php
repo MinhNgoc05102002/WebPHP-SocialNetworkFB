@@ -35,18 +35,24 @@ Route::prefix('action')->group(function () {
 
 // private router
 Route::middleware('auth:sanctum')->group(function () {
+
     Route::post('/logout', [AuthController::class,'logout']);
 
     Route::prefix('post')->group(function () {
         Route::get('/get-list', [PostController::class,'index']);
 
-        Route::post('/create', [PostController::class,'create']);
+       
+
+        Route::post('/handle-post', [PostController::class,'handlePost']);
+
     });
 });
 
 // public router
 Route::post('/login', [AuthController::class,'login']);
 Route::post('/register', [AuthController::class,'register']);
+Route::post('/upload-file', [AuthController::class,'uploadFile']);
+Route::get('/media-file/{image}', [AuthController::class,'show']);
 
 
 
