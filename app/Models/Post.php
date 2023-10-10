@@ -13,6 +13,26 @@ class Post extends Model
     protected $primaryKey = 'post_id';
     public $timestamps = false;
 
+
+    public function getListPostByFilter($pageCount,$pageIndex,$username){
+        $count_page = intval($pageCount);
+        $index_page = intval($pageIndex);
+        $post = [];
+        if($count_page && $index_page){
+            $post = DB::select("
+                SELECT *
+                FROM Post WHERE username = :username
+                LIMIT :limit OFFSET :offset
+            ", [
+                'username' => $username,
+                'limit' => $pageCount,
+                'offset' => ($index_page - 1) * $count_page,
+            ]);    
+        }
+        
+        return $post;
+    }
+
     public function createPost($data){
         $mediaJson = $data['media'];
         $post = DB::insert('INSERT INTO Post (username,content,created_at,audience_type,media_info) values (?, ?, NOW(),?,?)',[
@@ -23,8 +43,6 @@ class Post extends Model
         ]);
         return $post;
     }
-
-    
 
     public function updatePost($data,$post){
         $mediaJson = $data['media'];
