@@ -20,13 +20,7 @@ class AuthController extends Controller
         $this->account = $_account;
     }
     public function register(Request $request){
-        $validator = Validator::make($request->all(),
-        [
-         'username'=>'required',
-         'password'=>'required',
-         'email'=>'required',
-        ]
-        );
+        
 
         return Account::create([
             'username' => $request->input('username'),

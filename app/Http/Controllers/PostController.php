@@ -10,6 +10,7 @@ use App\Models\Account;
 use App\Http\Requests\PostRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\PersonalAccessToken;
 
 
 use DB;
@@ -26,15 +27,32 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
+        $validator = Validator::make($request->all(),
+        [
+         'page_count'=>'required|string',
+         'page_index'=>'required|string',
+        ]
+        );
+
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        
+        
+
         try{
-            $page = $request->input('page', 1); // Số trang mặc định là 1.
-            $perPage = $request->input('page_size', 50); // Số bản ghi mỗi trang mặc định là 10.
-            $items = Post::paginate($perPage, ['*'], 'page', $page);
-            return response()->success($items,"Lấy danh sách thành công", Response::HTTP_OK);
+            $username = auth()->user()->username; // lấy username trong phiên đăng nhập
+            $pageCount = $request->input('page_count');
+            $pageIndex = $request->input('page_index');
+            $lstPost = $this->post->getListPostByFilter($pageCount,$pageIndex,$username);
+            return response()->success($lstPost,"Lấy danh sách thành công", Response::HTTP_OK);
         }catch(Exception $ex){
-            return response()->error($ex, Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw $ex;
         }
     }
+
+    
 
     public function handlePost(PostRequest $request)
     {
