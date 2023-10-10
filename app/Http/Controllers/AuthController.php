@@ -55,7 +55,11 @@ class AuthController extends Controller
             return response()->error('Không thể tạo tài khoản.', 500);
         }
         return response()->success($account, 'Tài khoản đã được tạo thành công.', 200);
+            if(!$account){
+                return response()->error('Không thể tạo tài khoản.', 500);
+            }
 
+            return response()->success($account, 'Tài khoản đã được tạo thành công.', 200);
         }catch(Exception $ex){
             throw $ex;
         }
@@ -104,5 +108,43 @@ class AuthController extends Controller
         });
 
         return response()->json(['message' => 'Logout successful']);
+    }
+
+    public function show($image)
+    {
+        $path = storage_path('app/public/media/' . $image);
+        
+        if (!File::exists($path)) {
+            abort(404);
+        }
+        
+        $file = File::get($path);
+        $type = File::mimeType($path);
+
+        $response = response($file, 200)->header("Content-Type", $type);
+
+        return $response;
+    }
+
+    public function uploadFile(Request $request){
+        try {
+           // up ảnh
+           $imageInfo = array();
+           if ($request->hasFile('media')) {
+               $images = $request->file('media');
+               foreach ($images as $image) {
+                   $originalName = $image->getClientOriginalName();
+                   $extension = $image->getClientOriginalExtension();
+                   $randomString = uniqid();
+                   $imageName = time() . '' . $originalName . '' . $randomString . '.' . $extension;
+                   $image->move(public_path('storage/media'), $imageName);
+                   $imageInfo[] = ['type' => $image->getClientOriginalExtension(),'name' => $imageName];
+               }
+               return response()->success(['file_info' => $imageInfo],'Tải lên ảnh thành công',200);
+           }
+           return response()->error('Tải lên ảnh thất bại !',400);
+        } catch (Throwable $th) {
+            throw $th;
+        }
     }
 }
