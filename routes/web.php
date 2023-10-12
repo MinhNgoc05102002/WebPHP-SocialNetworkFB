@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AccountController;
-use routes\api_messages;
+use App\Http\Controllers\MessageController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +22,11 @@ Route::get('/', function () {
 Route::get('/account', [AccountController::class,'getAll']);
 //route
 Route::prefix('message')->group(function () {
-    Route::get('/getall', [MessageController::class,'index']);
+    Route::get('/', [MessageController::class,'index']);
+    Route::get('/getall', [MessageController::class,'getAll']);
     Route::post('/create', [MessageController::class,'create']);
-    Route::get('chatsession/{chatId}', [ChatSessionController::class, 'getMessagesByChatId']);
-    Route::post('addmessage', [ChatSessionController::class, 'addMessage']);
-    Route::put('chatsession/{chatId}/changename', [ChatSessionController::class, 'changeName']);
-    Route::delete('deletemessages/chatsession/{chatId}', [ChatSessionController::class, 'deleteMessagesByChatId']);
+    Route::get('chatsession/{chatId}', [MessageController::class, 'getMessagesByChatId']);
+    Route::post('addmessage', [MessageController::class, 'addMessage']);
+    Route::put('chatsession/{chatId}/changename', [MessageController::class, 'changeName']);
+    Route::delete('deletemessages/chatsession/{chatId}', [MessageController::class, 'deleteMessagesByChatId']);
 });
