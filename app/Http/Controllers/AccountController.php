@@ -1,9 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Account;
 
 use Illuminate\Http\Request;
+use App\Models\Account;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {

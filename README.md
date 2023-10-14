@@ -7,60 +7,88 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## Cách chạy dự án
+- Bước 1: git pull origin
+- Bước 2: chạy lệnh composer i
+- Bước 3: php artisan migrate 
+- Bước 4: vào .env tìm để thay thông tin db tương ứng
+- Bước 5: php artisan serve
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+##  Cách chạy được folder để ảnh
+- Bước 1: php artisan storage:link
+- Bước 2: tạo ra file media trong đấy
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Cách lấy User hiện tại trong token
+* Cách 1: Để trong private router
 
-## Learning Laravel
+- Bước 1: use Illuminate\Support\Facades\Auth;
+- Bước 2: $username = auth()->user()->username;
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Cách 2: check token hợp lệ không qua token
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- Bước 1: Phải settup Bears token
+- Bước 2: gọi qua api http://127.0.0.1:8000/api/check-login phương thức GET
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Cách login trong Postman
+- Bước 1: Chọn API : http://127.0.0.1:8000/api/login
+- Bước 2: Bấm vào "Headers" thêm trường Accept: application/json để nó chỉ nhận json thôi
+- Bước 3: Nhập email or username và password có trong db
+- Bước 4: Nếu thành công sẽ trả về mã token
+- Bước 5: Qua router private vd như : http://127.0.0.1:8000/api/post/get-list?page_index=1&page_count=10&username=tra-vh
+- Bước 6: bấm vào "Authorization" -> chọn Type "Bearer Token" -> paste token mới tạo từ login vào
+- Bước 7 RUNNNN !!!
 
-## Laravel Sponsors
+## Cách tạo request validate
+Bước 1: php artisan make:request {Tên request}
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+<h3>Rule validate ở đây - có thể custom để 1 vài trường hợp sẽ không validate nữa</h3>
+ public function rules()
+    {
 
-### Premium Partners
+        // Luật xác thực chung cho cả tạo và cập nhật
+        $commonRules = [
+            'username' => 'required|string',
+            'function' => 'required|string',
+        ];
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+        if ($this->input('function') === 'C') {
+            // Áp dụng luật xác thực riêng cho thêm mới
+            return array_merge($commonRules, [
+                'content' => 'required|string|',
+                'audience_type' => 'required|string',
+            ]);
 
-## Contributing
+        } elseif($this->input('function') === 'U') 
+        {
+            // Áp dụng luật xác thực riêng cho tạo mới
+            return array_merge($commonRules, [
+                // Luật xác thực cho tạo mới
+                'id_post' => 'required|string',
+                'content' => 'required|string|',
+                'audience_type' => 'required|string',
+                'media' => 'required|string'
+            ]);
+        } elseif($this->input('function') === 'D') 
+        {
+            // Áp dụng luật xác thực riêng cho tạo mới
+            return array_merge($commonRules, [
+                // Luật xác thực cho xóa
+                'id_post' => 'required|string',
+            ]);
+        }
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+        return $commonRules;
+    }
 
-## Code of Conduct
+<h3>Custome message ở đây</h3>
+    public function messages()
+    {
+        return [
+            'content.required' => 'content không được để trống',
+            'audience_type.required' => 'audience_type không được để trống',
+            'username.required' => 'username không được để trống',
+            'id_post.required' => 'id_post không được để trống'
+        ];
+    }
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
