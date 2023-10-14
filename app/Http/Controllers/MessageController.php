@@ -13,7 +13,11 @@ use DB;
 
 class MessageController extends Controller
 {
-
+    /*
+        1: tra ve sucess thay vi json
+        vd: return response()->success($items,"Lấy danh sách thành công", Response::HTTP_OK);
+        (object, "comment", status_code vd 200 = success)
+    */
     public function getMessagesByChatId($chatId)
     {
         $chatSession = ChatSession::where('chat_id', $chatId)->first();
@@ -22,7 +26,7 @@ class MessageController extends Controller
         }
         $messages = Message::where('chat_id', $chatId)->get();
 
-        return response()->json(['data' => $messages]);
+        return response()->success($messages, 'Lấy tin nhắn thành công!', Response::HTTP_OK);
     }
 
     //thêm 1 message
@@ -58,6 +62,7 @@ class MessageController extends Controller
 
     public function deleteMessagesByChatId($chatId)
     {
+        ChatSession::where('chat_id', $chatId)->delete();
         Message::where('chat_id', $chatId)->delete();
         return response()->json(['message' => 'Messages deleted successfully']);
     }

@@ -25,3 +25,12 @@ Route::prefix('post')->group(function () {
 
     // Route::get('/getFilter', [PostController::class,'getFilter']);
 });
+Route::prefix('message')->group(function () {
+    Route::get('/', [MessageController::class,'index']);
+    Route::get('/getall', [MessageController::class,'getAll']);
+    Route::post('/create', [MessageController::class,'create']);
+    Route::get('chatsession/{chatId}', [MessageController::class, 'getMessagesByChatId']);
+    Route::post('addmessage', [MessageController::class, 'addMessage']);
+    Route::put('chatsession/{chatId}/changename', [MessageController::class, 'changeName']);
+    Route::delete('deletemessages/chatsession/{chatId}', [MessageController::class, 'deleteMessagesByChatId']);
+});
