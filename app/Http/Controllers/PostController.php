@@ -58,12 +58,17 @@ class PostController extends Controller
     {
        try{
             $validate = $request->validated();
-            $account = $this->account->getInfoAccount($request->input('username'));
+            $username = auth()->user()->username;
+            $account = $this->account->getInfoAccount($username);
+            $media = null;
+            if($request->has('media')){
+                $media = $request->input('media');
+            }
             if($account){
                 $func = $request->input('function');
                 if($func === 'C'){
                     // tạo bài viết
-                    $newPost = $this->post->createPost($request->only('username','content','audience_type','media'));
+                    $newPost = $this->post->createPost($request->only('content','audience_type'),$username,$media);
                     
                     return response()->success($newPost,"Tạo bài viết thành công !", 201);
                 }elseif($func === 'U'){
@@ -71,8 +76,10 @@ class PostController extends Controller
                     $postFind = Post::find($request->input('id_post'));
                     if($postFind){
                         $updatedPost = $this->post->updatePost(
-                            $request->only('username','content','audience_type','media','id_post'),
-                            $postFind
+                            $request->only('content','audience_type','id_post'),
+                            $postFind,
+                            $username,
+                            $media
                         );
                     }else{
                         return response()->error("Bài viết không tồn tại !", 401);
@@ -85,13 +92,19 @@ class PostController extends Controller
                     if($postFind){
                         $updatedPost = $this->post->deletePost(
                             $request->only('id_post'),
-                            $postFind
+                            $postFind,
+                            $username
                         );
+                        if($updatedPost){
+                            return response()->success($request->input('id_post'),"Xóa bài viết thành công !", 201);
+                        }else{
+                            return response()->error("Xóa bài viết thất bại !", 301);
+                        }
                     }else{
                         return response()->error("Bài viết không tồn tại !", 401);
                     }
     
-                    return response()->success($updatedPost,"Xóa bài viết thành công !", 201);
+                    
                 }else{
                     return response()->error("Chức năng không tồn tại !", 401);
                 }
