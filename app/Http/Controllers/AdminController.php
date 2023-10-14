@@ -39,21 +39,62 @@ class AdminController extends Controller
             // Thông tin tỉ lệ độ tuổi của ng dùng
             $listAgeRange = $this->account->getNumAccByAge();
 
-            // Thông tin số lượt đki mới theo từng ngày trong 7 ngày qua
-            // Thông tin lượng bài viết mới theo từng ngày trong 7 ngày qua
-            // Thông tin số lượt report mới theo từng ngày trong 7 ngày qua
+            // Thông tin số lượng tài khoản tạo mới trong 10 ngày gần nhất
+            $numNewAccChart = $this->account->getNumNewAccountByDate();
+
+            // Thông tin số lượng bài viết tạo mới trong 10 ngày gần nhất
+            $numNewPostChart = $this->post->getNumNewPostByDate();
+
+            // Thông tin số lượng report mới trong 10 ngày gần nhất
+            $numNewReportChart = $this->report->getNumReportByDate();
+
             // Trả về response thành công
             return response()->success([
-                "numNewAccount"=>$numNewAccount,
-                $numNewPost,
-                $numNewReport,
-                $numNewBlock,
-                "listAgeRange"=>$listAgeRange
+                "num_new_acc"=>$numNewAccount,
+                "num_new_post"=>$numNewPost,
+                "num_new_report"=>$numNewReport,
+                "num_new_block"=>$numNewBlock,
+                "list_age_range"=>$listAgeRange,
+                "num_new_acc_chart"=>$numNewAccChart,
+                "num_new_post_chart"=>$numNewPostChart,
+                "num_new_report_chart"=>$numNewReportChart
             ],
                 "Lấy dữ liệu thành công",
                 200);
 
         } catch (Exception $e) {
+            throw $e;
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public function getReportedPost(Request $request) {
+        try {
+            $listReportedPost = $this->report->getListReportedPost(0, 10);
+
+            // Trả về response thành công
+            return response()->success($listReportedPost,
+                "Lấy dữ liệu thành công",
+                200);
+
+        } catch (Exception $e) {
+            throw $e;
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getReportedAcc(Request $request) {
+        try {
+            $listReportedAcc = $this->account->getListReportedAcc(0, 10);
+
+            // Trả về response thành công
+            return response()->success($listReportedAcc,
+                "Lấy dữ liệu thành công",
+                200);
+
+        } catch (Exception $e) {
+            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
