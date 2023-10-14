@@ -27,7 +27,6 @@ class PostRequest extends FormRequest
 
         // Luật xác thực chung cho cả tạo và cập nhật
         $commonRules = [
-            'username' => 'required|string',
             'function' => 'required|string',
         ];
 
@@ -40,9 +39,7 @@ class PostRequest extends FormRequest
 
         } elseif($this->input('function') === 'U') 
         {
-            // Áp dụng luật xác thực riêng cho tạo mới
             return array_merge($commonRules, [
-                // Luật xác thực cho tạo mới
                 'id_post' => 'required|string',
                 'content' => 'required|string|',
                 'audience_type' => 'required|string',
@@ -50,9 +47,7 @@ class PostRequest extends FormRequest
             ]);
         } elseif($this->input('function') === 'D') 
         {
-            // Áp dụng luật xác thực riêng cho tạo mới
             return array_merge($commonRules, [
-                // Luật xác thực cho xóa
                 'id_post' => 'required|string',
             ]);
         }
