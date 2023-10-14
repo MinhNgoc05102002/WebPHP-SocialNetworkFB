@@ -15,6 +15,7 @@ class Account extends Authenticatable
     protected $table = 'Account';
     public $timestamps = false;
     protected $primaryKey = 'username';
+    public $incrementing = false;
     /**
      * The attributes that are mass assignable.
      *
@@ -24,6 +25,11 @@ class Account extends Authenticatable
         'username',
         'email',
         'password',
+        'fullname',
+        'day_of_birth',
+        'gender',
+        'created_at',
+
     ];
 
     /**
@@ -92,6 +98,17 @@ class Account extends Authenticatable
         // dd($data['string_search']);
         return $stringSearch;
     }
+
+    public function checkDuplicate($username, $email){
+        $count = $this->where(function ($query) use ($username, $email) {
+            $query->where('username', $username)
+                ->orWhere('email', $email);
+        })->count();
+
+        return $count > 0;
+    }
+
+
 
     public function getNumNewAccountByDate(){
         return DB::select(' SELECT dates.creation_date, COUNT(Account.username) AS account_count
