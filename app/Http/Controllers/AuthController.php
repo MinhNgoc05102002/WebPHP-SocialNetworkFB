@@ -9,6 +9,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
+use Laravel\Sanctum\Sanctum;
 use Exception;
 use DB;
 
@@ -23,15 +24,15 @@ class AuthController extends Controller
     public function register(Request $request){
         try{
             $validator = Validator::make($request->all(),
-            [
-            'fullname'=>['required', 'regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u'],
-            'username' => ['required', 'regex:/^[a-zA-Z0-9_-]+$/'],
-            'password'=> ['required', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
-            'email'=>['required','email'],
-            'day_of_birth'=>['required'],
-            'gender'=>['required'],
-            ]
-        );
+                [
+                    'fullname'=>['required', 'regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u'],
+                    'username' => ['required', 'regex:/^[a-zA-Z0-9_-]+$/'],
+                    'password'=> ['required', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+                    'email'=>['required','email'],
+                    'day_of_birth'=>['required'],
+                    'gender'=>['required'],
+                ]
+            );
         if ($validator->fails()) {
             // Xử lý khi có lỗi trong validator
             return response()->error($validator->errors(), 400);
@@ -66,27 +67,65 @@ class AuthController extends Controller
 
     }
 
+    public function checkLogin(){
+        if (auth('sanctum')->check()) {
+            $user = auth('sanctum')->user();
+            return response()->success(
+                [
+                    'username'=>$user->username,
+                    'email'=>$user->email,
+                    'avatar'=>$user->avatar,
+                    'phone'=>$user->phone,
+                    'location'=>$user->location
+                ],
+                'Token còn hoạt động',
+                200
+            );
+        }else{
+            return response()->success(
+                [],
+                'Token không tồn tại hoặc đã đăng xuất',
+                401
+            );
+        }
+    }
+
+
     public function login(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(),
+                [
+                    'login'=>['required', 'string'],
+                    'password' => ['required', 'string'],
+                ]
+            );
              // Kiểm tra xem người dùng đã đăng nhập hay chưa (nó check token trong bảng personal_access_token)
             if (auth('sanctum')->check()) {
                 return response()->error("Bạn đã đăng nhập và không thể truy cập API đăng nhập lại.", 403);
             }
+            // nếu định dạng là email thì sẽ tự động convert về email để tìm kiếm
+            $login_type = filter_var($request->input('login'), FILTER_VALIDATE_EMAIL )
+            ? 'email'
+            : 'username';
 
+            $request->merge([ 
+                $login_type => $request->input('login') 
+            ]);
             // Xác thực người dùng và lấy thông tin người dùng
-            if (Auth::attempt($request->only('email', 'password'))) {
+            if (Auth::attempt($request->only($login_type, 'password'))) {
                 $user = Auth::user();
                 // Tạo token Sanctum cho người dùng
-
-                $account = DB::select(' SELECT username, email, avatar, phone, location
-                            FROM db_lab.Account
-                            WHERE email = ? ',[$request->input('email')]);
-
                 $token = $user->createToken('token-name')->plainTextToken;
 
                 $result = [
-                    'data'=>$account[0],
+                    'data'=>[
+                        'username'=>$user->username,
+                        'email'=>$user->email,
+                        'avatar'=>$user->avatar,
+                        'phone'=>$user->phone,
+                        'location'=>$user->location
+                    ],
                     'authentication' => [
                         'access_token' => $token,
                         'token_type' => 'Bearer',
@@ -107,7 +146,7 @@ class AuthController extends Controller
             $token->delete();
         });
 
-        return response()->json(['message' => 'Logout successful']);
+        return response()->success([],"Logout successful",200);
     }
 
     public function show($image)

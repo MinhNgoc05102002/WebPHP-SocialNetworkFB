@@ -29,7 +29,6 @@ class Account extends Authenticatable
         'day_of_birth',
         'gender',
         'created_at',
-
     ];
 
     /**

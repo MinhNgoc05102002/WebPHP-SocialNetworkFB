@@ -21,7 +21,7 @@ class Post extends Model
         if($count_page && $index_page){
             $post = DB::select("
                 SELECT *
-                FROM Post WHERE username = :username
+                FROM Post WHERE username = :username AND (is_deleted != 1 or is_deleted is null) ORDER BY created_at DESC
                 LIMIT :limit OFFSET :offset
             ", [
                 'username' => $username,
@@ -33,21 +33,29 @@ class Post extends Model
         return $post;
     }
 
-    public function createPost($data){
-        $mediaJson = $data['media'];
-        $post = DB::insert('INSERT INTO Post (username,content,created_at,audience_type,media_info) values (?, ?, NOW(),?,?)',[
-            $data['username'],
-            $data['content'],
-            $data['audience_type'],
-            $mediaJson
+    public function createPost($data,$username,$media){
+        $mediaJson = $media;
+        // $post = DB::insert('INSERT INTO Post (username,content,created_at,audience_type,media_info) values (?, ?, NOW(),?,?)',[
+        //     $username,
+        //     $data['content'],
+        //     $data['audience_type'],
+        //     $mediaJson
+        // ]);
+        $insertedId = DB::table('Post')->insertGetId([
+            'username' => $username,
+            'content' => $data['content'],
+            'created_at' => now(),
+            'audience_type' => $data['audience_type'],
+            'media_info' => $mediaJson
         ]);
+        $post = DB::table('Post')->where('post_id', $insertedId)->first();
         return $post;
     }
 
 
 
-    public function updatePost($data,$post){
-        $mediaJson = $data['media'];
+    public function updatePost($data,$post,$username,$media){
+        $mediaJson = $media;
         $post = DB::update(
             'UPDATE Post SET content = ? ,audience_type = ?,media_info = ? WHERE post_id = ?',
             [
@@ -59,14 +67,14 @@ class Post extends Model
         return $post;
     }
 
-    public function deletePost($data){
+    public function deletePost($data,$username){
         $post = DB::update(
-            'UPDATE Post SET is_deleted = ? WHERE post_id = ?',
+            'UPDATE Post SET is_deleted = ? WHERE post_id = ? AND username = ?',
             [
-                '1',
-                $data['id_post']
+                1,
+                $data['id_post'],
+                $username->username
             ]);
-        return $post;
         return $post;
     }
 
