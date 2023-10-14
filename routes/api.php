@@ -26,7 +26,8 @@ use App\Http\Controllers\AuthController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/get-overview', [AdminController::class,'getOverview']);
-
+    Route::get('/get-reported-post', [AdminController::class,'getReportedPost']);
+    Route::get('/get-reported-acc', [AdminController::class,'getReportedAcc']);
 });
 
 Route::prefix('action')->group(function () {
@@ -35,12 +36,12 @@ Route::prefix('action')->group(function () {
 
 // private router
 Route::middleware('auth:sanctum')->group(function () {
-    
+
     Route::post('/logout', [AuthController::class,'logout']);
 
     Route::prefix('post')->group(function () {
         Route::get('/get-list', [PostController::class,'index']);
-    
+
         Route::post('/handle-post', [PostController::class,'handlePost']);
 
     });

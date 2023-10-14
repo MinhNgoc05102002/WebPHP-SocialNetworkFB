@@ -39,27 +39,29 @@ class Account extends Authenticatable
     public function getInfoAccount($username){
         $num = DB::select(' SELECT username, email, avatar, phone, location
                             FROM db_lab.Account
-                            WHERE username = ? ',[$username]);                    
+                            WHERE username = ? ',[$username]);
         return $num;
     }
 
     public function getNumNewAccount(){
         $num = DB::select(' SELECT count(*) as num_new_acc
                             FROM Account
-                            WHERE datediff(created_at, now()) < 7; ');
+                            WHERE datediff(created_at, now()) <= 7; ');
+        if(count($num) == 0) return null;
         return $num[0]->num_new_acc;
     }
 
     public function getNumNewBlock(){
         $num = DB::select(' SELECT count(*) as num_new_block
                             FROM Account
-                            WHERE datediff(modified_date, now()) < 7 AND
+                            WHERE datediff(modified_date, now()) <= 7 AND
                                   status = \'BLOCK\'; ');
-        return $num[0];
+        if(count($num) == 0) return null;
+        return $num[0]->num_new_block;
     }
 
     public function getNumAccByAge() {
-        $res = DB::select(' SELECT C.name, IFNULL(T.account_count, 0) account_count, C.description
+        $res = DB::select(' SELECT C.code, IFNULL(T.account_count, 0) account_count, C.value
                             FROM Classification C LEFT JOIN (
                                 SELECT
                                 CASE
@@ -74,7 +76,7 @@ class Account extends Authenticatable
                                 COUNT(*) AS ACCOUNT_COUNT
                                 FROM Account
                                 GROUP BY AGE_RANGE
-                            ) T ON C.name = T.AGE_RANGE
+                            ) T ON C.code = T.AGE_RANGE
                             WHERE C.type = \'AGE_RANGE\'; ');
         return $res;
     }
@@ -89,5 +91,34 @@ class Account extends Authenticatable
                                 );
         // dd($data['string_search']);
         return $stringSearch;
+    }
+
+    public function getNumNewAccountByDate(){
+        return DB::select(' SELECT dates.creation_date, COUNT(Account.username) AS account_count
+                            FROM (
+                                SELECT DATE(DATE_SUB(NOW(), INTERVAL n DAY)) AS creation_date
+                                FROM (
+                                    SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3
+                                    UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7
+                                    UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10
+                                ) AS days
+                                WHERE DATE(DATE_SUB(NOW(), INTERVAL n DAY)) >= DATE(NOW()) - INTERVAL 7 DAY
+                            ) AS dates
+                            LEFT JOIN Account ON DATE(Account.created_at) = dates.creation_date
+                            GROUP BY dates.creation_date
+                            ORDER BY dates.creation_date DESC; ');
+    }
+
+    public function getListReportedAcc($pageIndex, $pageCount) {
+        return DB::select(' SELECT Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date, count(Report.username) as num_report
+                            from Post join Report on Post.post_id = Report.post_id
+                                    join Account on Post.username = Account.username
+                            group by Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date
+                            LIMIT ? OFFSET ?;',
+                            [
+                                $pageCount,
+                                $pageCount * $pageIndex
+                            ]
+                            );
     }
 }
