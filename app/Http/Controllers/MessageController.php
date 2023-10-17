@@ -65,16 +65,19 @@ class MessageController extends Controller
             return response()->error('Không tìm thấy đoạn chat để thêm tin nhắn!', Response::HTTP_NOT_FOUND);
             //return response()->json(['message' => 'ChatSession not found'], 404);
         }
+        try{
+            $message = new Message();
+            $message->chat_id = $chatId;
+            $message->message = $request->input('message');
+            $message->username = $username;
+            date_default_timezone_set('Asia/Ho_Chi_Minh');
+            $message->created_at = date('Y-m-d H:i:s');
+            $message->save();
 
-        $message = new Message();
-        $message->chat_id = $chatId;
-        $message->message = $request->input('message');
-        $message->username = $username;
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        $message->created_at = date('Y-m-d H:i:s');
-        $message->save();
-
-        return response()->success($message, 'Tin nhắn đã được gửi(thêm)!', 201);
+            return response()->success($message, 'Tin nhắn đã được gửi(thêm)!', 201);
+        }catch(Exception $e){
+            throw $e;
+        }
     }
 
     public function changeName(Request $request)
@@ -87,10 +90,15 @@ class MessageController extends Controller
             // return response()->json(['message' => 'ChatSession not found'], 404);
         }
 
-        $chatSession->name = $request->input('name');
-        $chatSession->save();
+        try{
+            $chatSession->name = $request->input('name');
+            $chatSession->save();
 
-        return response()->success($chatSession, "Đổi tên thành công!", 200);
+            return response()->success($chatSession, "Đổi tên thành công!", 200);
+        }
+        catch(Exception $ex){
+            throw $ex;
+        }
     }
 
     public function deleteChatSession($chatId)
@@ -109,28 +117,32 @@ class MessageController extends Controller
         if (!$chatSession) {
             return response()->error('Không tìm thấy đoạn chat!', Response::HTTP_NOT_FOUND);
         }
-        $AccountHasChat = new AccountHasChatSession();
-        $AccountHasChat->username = $request->input('username');
-        $AccountHasChat->chat_id = $chat_id;
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        $AccountHasChat->time_send = date('Y-m-d H:i:s');
-        $AccountHasChat->save();
+        try{
+            $AccountHasChat = new AccountHasChatSession();
+            $AccountHasChat->username = $request->input('username');
+            $AccountHasChat->chat_id = $chat_id;
+            date_default_timezone_set('Asia/Ho_Chi_Minh');
+            $AccountHasChat->time_send = date('Y-m-d H:i:s');
+            $AccountHasChat->save();
 
-        return response()->success([], 'Thêm người dùng vào đoạn chat thành công!');
+            return response()->success([], 'Thêm người dùng vào đoạn chat thành công!', 200);
+        }
+        catch(Exception $ex){
+            throw $ex;
+        }
     }
 
     public function createChatSession(Request $request){
-        //$chat_id = $request->input('chat_id');
-        // $chatSession = ChatSession::where('chat_id', $chatId)->first();
+        try{
+            $chatSession = new ChatSession();
+            $chatSession->name = $request->input('name');
+            $chatSession->save();
 
-        // if (!$chatSession) {
-        //     return response()->error('Không tìm thấy đoạn chat!', Response::HTTP_NOT_FOUND);
-        // }
-        $chatSession = new ChatSession();
-        $chatSession->name = $request->input('name');
-        $chatSession->save();
-
-        return response()->success([], 'Tạo đoạn chat thành công!');
+            return response()->success([], 'Tạo đoạn chat thành công!', 200);
+        }
+        catch(Exception $ex){
+            throw $ex;
+        }
     }
     
     // public function search(Request $request){

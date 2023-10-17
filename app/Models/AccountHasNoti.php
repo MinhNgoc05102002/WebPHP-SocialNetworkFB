@@ -9,4 +9,5 @@ class AccountHasNoti extends Model
 {
     use HasFactory;
     protected $table = 'AccountHasNoti';
+    public $timestamps = false;
 }

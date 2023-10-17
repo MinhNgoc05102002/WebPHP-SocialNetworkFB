@@ -9,4 +9,5 @@ class AccountHasChatSession extends Model
 {
     use HasFactory;
     protected $table = 'AccountHasChatSession';
+    public $timestamps = false;
 }
