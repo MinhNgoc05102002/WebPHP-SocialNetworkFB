@@ -9,4 +9,5 @@ class ChatSession extends Model
 {
     use HasFactory;
     protected $table = 'ChatSession';
+    public $timestamps = false;
 }

@@ -9,4 +9,5 @@ class React extends Model
 {
     use HasFactory;
     protected $table = 'React';
+    public $timestamps = false;
 }

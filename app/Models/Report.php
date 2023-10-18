@@ -10,6 +10,7 @@ class Report extends Model
 {
     use HasFactory;
     protected $table = 'Report';
+    public $timestamps = false;
 
     public function getNumNewReport(){
         $num = DB::select(' SELECT count(*) as num_new_report
