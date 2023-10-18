@@ -15,8 +15,9 @@
 - Bước 5: php artisan serve
 
 ##  Cách chạy được folder để ảnh
-- Bước 1: php artisan storage:link
-- Bước 2: tạo ra file media trong đấy
+- Bước 1: chạy lệnh composer i
+- Bước 2: php artisan storage:link
+- Bước 3: tạo ra file media trong đấy
 
 
 ## Cách lấy User hiện tại trong token
