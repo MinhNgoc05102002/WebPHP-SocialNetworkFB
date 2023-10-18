@@ -19,14 +19,32 @@ class Post extends Model
         $index_page = intval($pageIndex);
         $post = [];
         if($count_page && $index_page){
-            $post = DB::select("
-                SELECT *
-                FROM Post WHERE username = :username AND (is_deleted != 1 or is_deleted is null) ORDER BY created_at DESC
-                LIMIT :limit OFFSET :offset
-            ", [
-                'username' => $username,
-                'limit' => $pageCount,
-                'offset' => ($index_page - 1) * $count_page,
+
+            $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[
+                'current_username' => $username,
+                'page_index' => $index_page,
+                'page_size' => $count_page,
+            ]);
+        }
+
+        return $post;
+    }
+
+    public function getListPostProfile($pageCount,$pageIndex,$username,$username_profile){
+        $count_page = intval($pageCount);
+        $index_page = intval($pageIndex);
+        $post = [];
+        $userProfile = null;
+        if($username_profile){
+            $userProfile = $username_profile;
+        }
+        if($count_page && $index_page){
+
+            $post = DB::select("CALL getProfilePost(:profile_username, :current_username, :page_index, :page_size)",[
+                'current_username' => $username,
+                'profile_username' => $userProfile,
+                ':page_index' => $index_page,
+                ':page_size' => $count_page,
             ]);
         }
 
@@ -56,15 +74,26 @@ class Post extends Model
 
     public function updatePost($data,$post,$username,$media){
         $mediaJson = $media;
-        $post = DB::update(
-            'UPDATE Post SET content = ? ,audience_type = ?,media_info = ? WHERE post_id = ?',
-            [
-                $data['content'],
-                $data['audience_type'],
-                $mediaJson,
-                $data['id_post'],
+
+        // Thực hiện cập nhật bản ghi
+        $isUpdate = DB::table('Post')
+            ->where('post_id', $data['id_post'])
+            ->where('username',$username)
+            ->update([
+                'content' => $data['content'],
+                'audience_type' => $data['audience_type'],
+                'media_info' => $mediaJson,
             ]);
-        return $post;
+        if($isUpdate){
+            $updatedPost = DB::table('Post')
+            ->where('post_id', $data['id_post'])
+            ->first();
+
+            return $updatedPost;
+        }
+        return null;
+        // Truy vấn lại bản ghi vừa cập nhật
+        
     }
 
     public function deletePost($data,$username){
