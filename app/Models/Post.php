@@ -43,8 +43,8 @@ class Post extends Model
             $post = DB::select("CALL getProfilePost(:profile_username, :current_username, :page_index, :page_size)",[
                 'current_username' => $username,
                 'profile_username' => $userProfile,
-                ':page_index' => $index_page,
-                ':page_size' => $count_page,
+                'page_index' => $index_page,
+                'page_size' => $count_page,
             ]);
         }
 

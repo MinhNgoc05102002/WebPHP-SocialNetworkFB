@@ -11,8 +11,7 @@ use App\Http\Requests\PostRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
-
-
+use App\Events\Message;
 use DB;
 use Exception;
 
@@ -145,5 +144,10 @@ class PostController extends Controller
        }catch(Exception $ex){
             throw $ex;
        }
+    }
+
+    public function demoNotification(Request $request){
+        event(new MyEvent('hello world'));
+        return response()->success([],"Bài viết không tồn tại !", 401);
     }
 }
