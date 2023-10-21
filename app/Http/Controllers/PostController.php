@@ -18,7 +18,7 @@ use Exception;
 class PostController extends Controller
 {
     protected $post;
-    protected $account;
+    protected $account;   
     public function __construct(Post $_post,Account $account) {
         $this->post = $_post;
         $this->account = $account;
@@ -147,7 +147,12 @@ class PostController extends Controller
     }
 
     public function demoNotification(Request $request){
-        event(new MyEvent('hello world'));
+        $data = [
+            'message' => 'xin chao',
+            'username' => 'duc'
+        ];
+        $jsonStr = json_encode($data);
+        event(new Message($jsonStr));
         return response()->success([],"Bài viết không tồn tại !", 401);
     }
 }

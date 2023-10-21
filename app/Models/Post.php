@@ -19,7 +19,6 @@ class Post extends Model
         $index_page = intval($pageIndex);
         $post = [];
         if($count_page && $index_page){
-
             $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[
                 'current_username' => $username,
                 'page_index' => $index_page,
