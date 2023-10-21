@@ -29,6 +29,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/get-overview', [AdminController::class,'getOverview']);
     Route::post('/get-reported-post', [AdminController::class,'getReportedPost']);
     Route::post('/get-reported-acc', [AdminController::class,'getReportedAcc']);
+    Route::post('/handle-block-acc', [AdminController::class,'handleBlockAcc']);
+    Route::post('/handle-block-post', [AdminController::class,'handleBlockPost']);
+    Route::post('/send-warning-acc', [AdminController::class,'sendWarningAcc']);
 });
 
 Route::prefix('action')->group(function () {

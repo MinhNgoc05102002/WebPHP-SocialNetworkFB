@@ -69,7 +69,6 @@ class AdminController extends Controller
         }
     }
 
-
     public function getReportedPost(Request $request) {
 
         $validator = Validator::make($request->all(),
@@ -119,6 +118,87 @@ class AdminController extends Controller
             // Trả về response thành công
             return response()->success($listReportedAcc,
                 "Lấy dữ liệu thành công",
+                200);
+
+        } catch (Exception $e) {
+            throw $e;
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function handleBlockAcc(Request $request) {
+        $validator = Validator::make($request->all(),
+        [
+         'blocked_username'=>'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        try {
+            $blockedUsername = $request->input('blocked_username');
+
+            $newStatus = $this->account->handleBlockAcc($blockedUsername);
+
+            // Trả về response thành công
+            return response()->success($newStatus,
+                "Lấy dữ liệu thành công",
+                200);
+
+        } catch (Exception $e) {
+            throw $e;
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function handleBlockPost(Request $request) {
+        $validator = Validator::make($request->all(),
+        [
+         'blocked_post_id'=>'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        try {
+            $blockedPostId = $request->input('blocked_post_id');
+
+            $newStatus = $this->post->handleBlockPost($blockedPostId);
+
+            // Trả về response thành công
+            return response()->success($newStatus,
+                "Lấy dữ liệu thành công",
+                200);
+
+        } catch (Exception $e) {
+            throw $e;
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function sendWarningAcc(Request $request) {
+        $validator = Validator::make($request->all(),
+        [
+         'username'=>'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        try {
+            $username = $request->input('username');
+
+            $this->account->sendWarningAcc($username); // status gửi tbao thành công hay thất bại
+
+            // Trả về response thành công
+            return response()->success($username,
+                "Gửi thông báo thành công",
                 200);
 
         } catch (Exception $e) {

@@ -137,4 +137,32 @@ class Account extends Authenticatable
                             ]
                             );
     }
+
+    public function handleBlockAcc($username) {
+        $status = DB::select('SELECT status FROM Account WHERE username = ? ;', [$username]);
+        $newStatus = $status[0]->status == 'ACTIVE' ? 'BLOCK' : 'ACTIVE';
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+        $acc = DB::update(
+                    'UPDATE Account SET status = ?, modified_date = ? WHERE username = ? ',
+                    [
+                        $newStatus,
+                        date('Y-m-d H:i:s'),
+                        $username,
+                    ]);
+        return $newStatus;
+    }
+
+    public function sendWarningAcc($username) {
+        $status = DB::select('SELECT status FROM Account WHERE username = ? ;', [$username]);
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+        DB::select("call createNoti (:i_noti_type, :i_link, :i_sender_username, :i_username, :i_created_at);",[
+            'i_noti_type' => 'ADMIN',
+            'i_link' => '',
+            'i_sender_username' => 'ADMIN',
+            'i_username' => $username,
+            'i_created_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
 }
