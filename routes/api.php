@@ -67,7 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/handle-post', [PostController::class,'handlePost']);
 
         Route::get('/get-list-profile', [PostController::class,'getListPostProfile']);
-
     });
 });
 
@@ -77,7 +76,7 @@ Route::post('/login', [AuthController::class,'login']);
 Route::post('/register', [AuthController::class,'register']);
 Route::post('/upload-file', [AuthController::class,'uploadFile']);
 Route::get('/media-file/{image}', [AuthController::class,'show']);
-
+Route::get('/notifi-realtime', [PostController::class,'demoNotification']);
 
 
 
