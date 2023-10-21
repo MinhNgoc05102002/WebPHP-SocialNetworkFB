@@ -52,6 +52,31 @@ class PostController extends Controller
         }
     }
 
+    public function getListPostProfile(Request $request){
+        $validator = Validator::make($request->all(),
+        [
+         'page_count'=>'required|string',
+         'page_index'=>'required|string',
+        ]
+        );
+
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        try{
+            $username = auth()->user()->username; // lấy username trong phiên đăng nhập
+            $pageCount = $request->input('page_count');
+            $pageIndex = $request->input('page_index');
+            $usernameProfile = $request->input('profile_username');
+            $lstPost = $this->post->getListPostProfile($pageCount,$pageIndex,$username,$usernameProfile);
+            return response()->success($lstPost,"Lấy danh sách thành công", Response::HTTP_OK);
+        }catch(Exception $ex){
+            throw $ex;
+        }
+    }
+
     
 
     public function handlePost(PostRequest $request)
@@ -84,8 +109,12 @@ class PostController extends Controller
                     }else{
                         return response()->error("Bài viết không tồn tại !", 401);
                     }
+                    if($updatedPost){
+                        return response()->success($updatedPost,"Cập nhật bài viết thành công !", 201);
+                    }else{
+                        return response()->error("Cập nhật bài viết thất bại", 401);
+                    }
     
-                    return response()->success($updatedPost,"Cập nhật bài viết thành công !", 201);
                 }elseif($func === 'D'){
                     // Xóa bài viết
                     $postFind = Post::find($request->input('id_post'));

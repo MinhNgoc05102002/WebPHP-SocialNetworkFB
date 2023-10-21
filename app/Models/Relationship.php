@@ -9,4 +9,5 @@ class Relationship extends Model
 {
     use HasFactory;
     protected $table = 'Relationship';
+    public $timestamps = false;
 }

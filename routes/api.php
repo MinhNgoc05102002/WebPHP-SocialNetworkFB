@@ -6,7 +6,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\AuthController;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,15 +38,35 @@ Route::prefix('action')->group(function () {
 // private router
 Route::middleware('auth:sanctum')->group(function () {
 
+    /*
+        index: lay ra tat ca cac chatsession
+
+    */
+    Route::prefix('message')->group(function () {
+        //KO CAN request - response: $chatsessions
+        Route::get('/', [MessageController::class,'index']);
+        //KO CAN request - response: $result{'messages' => $messages,'accounts' => $accounts}
+        Route::get('chatsession/{chatId}', [MessageController::class, 'getChatSession']);
+        //request: message, chat_id
+        Route::post('addmessage', [MessageController::class, 'addMessage']);
+        //request: chat_id, name
+        Route::put('chatsession/changename', [MessageController::class, 'changeName']);
+        //KO CAN request
+        Route::delete('chatsession/delete/{chatId}', [MessageController::class, 'deleteChatSession']);
+        //request: chat_id, username
+        Route::post('chatsession/addAccount', [MessageController::class, 'addAccountToChat']);
+        //request: name
+        Route::post('chatsession/create', [MessageController::class, 'createChatSession']);
+
+    });
 
     Route::post('/logout', [AuthController::class,'logout']);
 
     Route::prefix('post')->group(function () {
         Route::get('/get-list', [PostController::class,'index']);
-
-
-
         Route::post('/handle-post', [PostController::class,'handlePost']);
+
+        Route::get('/get-list-profile', [PostController::class,'getListPostProfile']);
 
     });
 });
