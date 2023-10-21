@@ -27,8 +27,8 @@ use App\Http\Controllers\MessageController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/get-overview', [AdminController::class,'getOverview']);
-    Route::get('/get-reported-post', [AdminController::class,'getReportedPost']);
-    Route::get('/get-reported-acc', [AdminController::class,'getReportedAcc']);
+    Route::post('/get-reported-post', [AdminController::class,'getReportedPost']);
+    Route::post('/get-reported-acc', [AdminController::class,'getReportedAcc']);
 });
 
 Route::prefix('action')->group(function () {
@@ -64,11 +64,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('post')->group(function () {
         Route::get('/get-list', [PostController::class,'index']);
-        
         Route::post('/handle-post', [PostController::class,'handlePost']);
 
         Route::get('/get-list-profile', [PostController::class,'getListPostProfile']);
-        
+
     });
 });
 
