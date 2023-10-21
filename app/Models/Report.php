@@ -35,14 +35,14 @@ class Report extends Model
                             ORDER BY dates.creation_date DESC;');
     }
 
-    public function getListReportedPost($pageIndex, $pageCount) {
+    public function getListReportedPost($pageIndex, $pageSize) {
         return DB::select(' SELECT Post.post_id, Post.created_at, like_count, comment_count, is_deleted, share_count, audience_type, Post.username, count(Report.username) as num_report
                             from Post join Report on Post.post_id = Report.post_id
                             group by Post.post_id, Post.created_at, like_count, comment_count, is_deleted, share_count, audience_type, username
                             LIMIT ? OFFSET ?;',
                             [
-                                $pageCount,
-                                $pageCount * $pageIndex
+                                $pageSize,
+                                $pageSize * $pageIndex
                             ]
                             );
     }

@@ -125,15 +125,15 @@ class Account extends Authenticatable
                             ORDER BY dates.creation_date DESC; ');
     }
 
-    public function getListReportedAcc($pageIndex, $pageCount) {
+    public function getListReportedAcc($pageIndex, $pageSize) {
         return DB::select(' SELECT Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date, count(Report.username) as num_report
                             from Post join Report on Post.post_id = Report.post_id
                                     join Account on Post.username = Account.username
                             group by Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date
                             LIMIT ? OFFSET ?;',
                             [
-                                $pageCount,
-                                $pageCount * $pageIndex
+                                $pageSize,
+                                $pageSize * $pageIndex
                             ]
                             );
     }

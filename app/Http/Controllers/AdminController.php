@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Account;
 use App\Models\Report;
 use Exception;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -70,8 +71,22 @@ class AdminController extends Controller
 
 
     public function getReportedPost(Request $request) {
+
+        $validator = Validator::make($request->all(),
+        [
+         'page_size'=>'required|string',
+         'page_index'=>'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         try {
-            $listReportedPost = $this->report->getListReportedPost(0, 10);
+            $pageSize = $request->input('page_size');
+            $pageIndex = $request->input('page_index');
+            $listReportedPost = $this->report->getListReportedPost($pageIndex, $pageSize);
 
             // Trả về response thành công
             return response()->success($listReportedPost,
@@ -85,8 +100,21 @@ class AdminController extends Controller
     }
 
     public function getReportedAcc(Request $request) {
+        $validator = Validator::make($request->all(),
+        [
+         'page_size'=>'required|string',
+         'page_index'=>'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         try {
-            $listReportedAcc = $this->account->getListReportedAcc(0, 10);
+            $pageSize = $request->input('page_size');
+            $pageIndex = $request->input('page_index');
+            $listReportedAcc = $this->account->getListReportedAcc($pageIndex, $pageSize);
 
             // Trả về response thành công
             return response()->success($listReportedAcc,
