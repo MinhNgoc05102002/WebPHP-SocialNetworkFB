@@ -92,7 +92,7 @@ class Post extends Model
         }
         return null;
         // Truy vấn lại bản ghi vừa cập nhật
-        
+
     }
 
     public function deletePost($data,$username){
@@ -138,6 +138,19 @@ class Post extends Model
                             LEFT JOIN Post ON DATE(Post.created_at) = dates.creation_date
                             GROUP BY dates.creation_date
                             ORDER BY dates.creation_date DESC; ');
+    }
+
+    public function handleBlockPost($postId) {
+        $status = DB::select('SELECT status FROM Post WHERE post_id = ? ;', [$postId]);
+        $newStatus = $status[0]->status == 'ACTIVE' ? 'BLOCK' : 'ACTIVE';
+
+        $post = DB::update(
+                    'UPDATE Post SET status = ? WHERE post_id = ? ',
+                    [
+                        $newStatus,
+                        $postId,
+                    ]);
+        return $newStatus;
     }
 }
 
