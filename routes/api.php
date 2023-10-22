@@ -7,7 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MessageController;
-
+use App\Http\Controllers\NotifiController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -57,7 +57,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('chatsession/addAccount', [MessageController::class, 'addAccountToChat']);
         //request: name
         Route::post('chatsession/create', [MessageController::class, 'createChatSession']);
-
     });
 
     Route::post('/logout', [AuthController::class,'logout']);
@@ -76,6 +75,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create-comment', [ActionController::class,'createComment']);
         Route::post('/update-comment', [ActionController::class,'updateComment']);
         Route::post('/delete-comment', [ActionController::class,'deleteComment']);
+    });
+
+    Route::prefix('notification')->group(function () {
+        Route::get('/', [NotifiController::class,'index']);
     });
 });
 
