@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Models\Post;
-use App\Models\Account;
+use App\Models\Notification;
 use App\Http\Requests\PostRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -19,9 +18,8 @@ class NotifiController extends Controller
 {
     protected $post;
     protected $account;   
-    public function __construct(Post $_post,Account $account) {
-        $this->post = $_post;
-        $this->account = $account;
+    public function __construct(Notification $notification) {
+        $this->notification = $notification;
     }
 
     public function index(Request $request)
