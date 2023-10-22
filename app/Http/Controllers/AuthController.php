@@ -109,8 +109,8 @@ class AuthController extends Controller
             ? 'email'
             : 'username';
 
-            $request->merge([ 
-                $login_type => $request->input('login') 
+            $request->merge([
+                $login_type => $request->input('login')
             ]);
             // Xác thực người dùng và lấy thông tin người dùng
             if (Auth::attempt($request->only($login_type, 'password'))) {
@@ -152,11 +152,11 @@ class AuthController extends Controller
     public function show($image)
     {
         $path = storage_path('app/public/media/' . $image);
-        
+
         if (!File::exists($path)) {
             abort(404);
         }
-        
+
         $file = File::get($path);
         $type = File::mimeType($path);
 

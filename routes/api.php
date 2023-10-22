@@ -31,9 +31,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/get-reported-acc', [AdminController::class,'getReportedAcc']);
 });
 
-Route::prefix('action')->group(function () {
-    Route::get('/get-resultview', [ActionController::class,'getResultview']);
-});
+
 
 // private router
 Route::middleware('auth:sanctum')->group(function () {
@@ -64,11 +62,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('post')->group(function () {
         Route::get('/get-list', [PostController::class,'index']);
-        
+
         Route::post('/handle-post', [PostController::class,'handlePost']);
 
         Route::get('/get-list-profile', [PostController::class,'getListPostProfile']);
-        
+
+    });
+    Route::prefix('action')->group(function () {
+        Route::get('/get-resultview', [ActionController::class,'getResultview']);
+        Route::post('/handle-react', [ActionController::class,'handleReact']);
+        Route::post('/create-comment', [ActionController::class,'createComment']);
+        Route::post('/update-comment', [ActionController::class,'updateComment']);
+        Route::post('/delete-comment', [ActionController::class,'deleteComment']);
     });
 });
 
