@@ -19,7 +19,6 @@ class Post extends Model
         $index_page = intval($pageIndex);
         $post = [];
         if($count_page && $index_page){
-
             $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[
                 'current_username' => $username,
                 'page_index' => $index_page,
@@ -43,8 +42,8 @@ class Post extends Model
             $post = DB::select("CALL getProfilePost(:profile_username, :current_username, :page_index, :page_size)",[
                 'current_username' => $username,
                 'profile_username' => $userProfile,
-                ':page_index' => $index_page,
-                ':page_size' => $count_page,
+                'page_index' => $index_page,
+                'page_size' => $count_page,
             ]);
         }
 
@@ -93,7 +92,7 @@ class Post extends Model
         }
         return null;
         // Truy vấn lại bản ghi vừa cập nhật
-        
+
     }
 
     public function deletePost($data,$username){
@@ -139,6 +138,19 @@ class Post extends Model
                             LEFT JOIN Post ON DATE(Post.created_at) = dates.creation_date
                             GROUP BY dates.creation_date
                             ORDER BY dates.creation_date DESC; ');
+    }
+
+    public function handleBlockPost($postId) {
+        $status = DB::select('SELECT status FROM Post WHERE post_id = ? ;', [$postId]);
+        $newStatus = $status[0]->status == 'ACTIVE' ? 'BLOCK' : 'ACTIVE';
+
+        $post = DB::update(
+                    'UPDATE Post SET status = ? WHERE post_id = ? ',
+                    [
+                        $newStatus,
+                        $postId,
+                    ]);
+        return $newStatus;
     }
 }
 

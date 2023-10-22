@@ -11,15 +11,14 @@ use App\Http\Requests\PostRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
-
-
+use App\Events\Message;
 use DB;
 use Exception;
 
 class PostController extends Controller
 {
     protected $post;
-    protected $account;
+    protected $account;   
     public function __construct(Post $_post,Account $account) {
         $this->post = $_post;
         $this->account = $account;
@@ -145,5 +144,15 @@ class PostController extends Controller
        }catch(Exception $ex){
             throw $ex;
        }
+    }
+
+    public function demoNotification(Request $request){
+        $data = [
+            'message' => 'xin chao',
+            'username' => 'duc'
+        ];
+        $jsonStr = json_encode($data);
+        event(new Message($jsonStr));
+        return response()->success([],"Bài viết không tồn tại !", 401);
     }
 }

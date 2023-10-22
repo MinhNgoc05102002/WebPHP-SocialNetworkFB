@@ -27,8 +27,10 @@ use App\Http\Controllers\MessageController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/get-overview', [AdminController::class,'getOverview']);
-    Route::get('/get-reported-post', [AdminController::class,'getReportedPost']);
-    Route::get('/get-reported-acc', [AdminController::class,'getReportedAcc']);
+    Route::post('/get-reported-post', [AdminController::class,'getReportedPost']);
+    Route::post('/get-reported-acc', [AdminController::class,'getReportedAcc']);
+    Route::post('/handle-block-acc', [AdminController::class,'handleBlockAcc']);
+    Route::post('/send-warning-acc', [AdminController::class,'sendWarningAcc']);
 });
 
 
@@ -83,7 +85,7 @@ Route::post('/login', [AuthController::class,'login']);
 Route::post('/register', [AuthController::class,'register']);
 Route::post('/upload-file', [AuthController::class,'uploadFile']);
 Route::get('/media-file/{image}', [AuthController::class,'show']);
-
+Route::get('/notifi-realtime', [PostController::class,'demoNotification']);
 
 
 

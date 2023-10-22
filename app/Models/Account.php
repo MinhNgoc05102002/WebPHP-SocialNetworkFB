@@ -125,16 +125,44 @@ class Account extends Authenticatable
                             ORDER BY dates.creation_date DESC; ');
     }
 
-    public function getListReportedAcc($pageIndex, $pageCount) {
+    public function getListReportedAcc($pageIndex, $pageSize) {
         return DB::select(' SELECT Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date, count(Report.username) as num_report
                             from Post join Report on Post.post_id = Report.post_id
                                     join Account on Post.username = Account.username
                             group by Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date
                             LIMIT ? OFFSET ?;',
                             [
-                                $pageCount,
-                                $pageCount * $pageIndex
+                                $pageSize,
+                                $pageSize * $pageIndex
                             ]
                             );
+    }
+
+    public function handleBlockAcc($username) {
+        $status = DB::select('SELECT status FROM Account WHERE username = ? ;', [$username]);
+        $newStatus = $status[0]->status == 'ACTIVE' ? 'BLOCK' : 'ACTIVE';
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+        $acc = DB::update(
+                    'UPDATE Account SET status = ?, modified_date = ? WHERE username = ? ',
+                    [
+                        $newStatus,
+                        date('Y-m-d H:i:s'),
+                        $username,
+                    ]);
+        return $newStatus;
+    }
+
+    public function sendWarningAcc($username) {
+        $status = DB::select('SELECT status FROM Account WHERE username = ? ;', [$username]);
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+        DB::select("call createNoti (:i_noti_type, :i_link, :i_sender_username, :i_username, :i_created_at);",[
+            'i_noti_type' => 'ADMIN',
+            'i_link' => '',
+            'i_sender_username' => 'ADMIN',
+            'i_username' => $username,
+            'i_created_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 }
