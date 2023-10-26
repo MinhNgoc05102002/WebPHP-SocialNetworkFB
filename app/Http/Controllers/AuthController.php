@@ -76,7 +76,8 @@ class AuthController extends Controller
                     'email'=>$user->email,
                     'avatar'=>$user->avatar,
                     'phone'=>$user->phone,
-                    'location'=>$user->location
+                    'location'=>$user->location,
+                    'fullname'=>$user->fullname,
                 ],
                 'Token còn hoạt động',
                 200
@@ -124,7 +125,8 @@ class AuthController extends Controller
                         'email'=>$user->email,
                         'avatar'=>$user->avatar,
                         'phone'=>$user->phone,
-                        'location'=>$user->location
+                        'location'=>$user->location,
+                        'fullname'=>$user->fullname,
                     ],
                     'authentication' => [
                         'access_token' => $token,

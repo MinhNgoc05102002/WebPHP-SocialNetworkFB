@@ -61,7 +61,7 @@ class ActionController extends Controller
             ]);
 
             // Trả về kết quả
-            return response()->json($result);
+            return response()->success($result,"Thực hiện thành công !", 201);
     }
 
     public function createComment(Request $request)
@@ -73,7 +73,6 @@ class ActionController extends Controller
         $i_post_id = $request->input('post_id');
         $i_username = auth()->user()->username;
 
-
             // Gọi thủ tục handleReact
             $result = DB::select("CALL createComment(:i_content, :i_post_id, :i_username, :i_created_at)", [
                 'i_content' => $i_content,
@@ -83,7 +82,7 @@ class ActionController extends Controller
             ]);
 
             // Trả về kết quả
-            return response()->json($result);
+            return response()->success($result,"Thực hiện thành công !", 201);
     }
 
     public function updateComment(Request $request)
