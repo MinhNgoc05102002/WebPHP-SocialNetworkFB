@@ -43,7 +43,7 @@ class Account extends Authenticatable
 
     public function getInfoAccount($username){
         $num = DB::select(' SELECT username, email, avatar, phone, location
-                            FROM db_lab.Account
+                            FROM Account
                             WHERE username = ? ',[$username]);
         return $num;
     }
