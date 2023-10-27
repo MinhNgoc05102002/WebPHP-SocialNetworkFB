@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Post;
 use App\Models\React;
-use App\Events\Message;
+use App\Events\NotificationEvent;
 use App\Models\Notification;
 use Exception;
 use Illuminate\Http\Request;
@@ -68,7 +68,7 @@ class ActionController extends Controller
                 $data = $this->notification->getById($noti_id);
 
                 $jsonStr = json_encode($data);
-                event(new Message($jsonStr,"tra-vh"));
+                event(new NotificationEvent($jsonStr,$result[0]->username));
             }
 
 
@@ -96,7 +96,7 @@ class ActionController extends Controller
             $data = $this->notification->getById($noti_id);
 
             $jsonStr = json_encode($data);
-            event(new Message($jsonStr));
+            event(new NotificationEvent($jsonStr,$result[0]->username));
 
             // Trả về kết quả
             return response()->success($result, "Tạo comment thành công!", 201);

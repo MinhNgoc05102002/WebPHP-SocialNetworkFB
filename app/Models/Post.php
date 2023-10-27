@@ -18,13 +18,11 @@ class Post extends Model
         $count_page = intval($pageCount);
         $index_page = intval($pageIndex);
         $post = [];
-        if($count_page && $index_page){
-            $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[
-                'current_username' => $username,
-                'page_index' => $index_page,
-                'page_size' => $count_page,
-            ]);
-        }
+        $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[ 
+            'current_username' => $username,
+            'page_index' => $index_page,
+            'page_size' => $count_page,
+        ]);
 
         return $post;
     }
@@ -37,15 +35,12 @@ class Post extends Model
         if($username_profile){
             $userProfile = $username_profile;
         }
-        if($count_page && $index_page){
-
-            $post = DB::select("CALL getProfilePost(:profile_username, :current_username, :page_index, :page_size)",[
-                'current_username' => $username,
-                'profile_username' => $userProfile,
-                'page_index' => $index_page,
-                'page_size' => $count_page,
-            ]);
-        }
+        $post = DB::select("CALL getProfilePost(:profile_username, :current_username, :page_index, :page_size)",[
+            'current_username' => $username,
+            'profile_username' => $userProfile,
+            'page_index' => $index_page,
+            'page_size' => $count_page,
+        ]);
 
         return $post;
     }
