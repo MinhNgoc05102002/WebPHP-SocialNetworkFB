@@ -68,7 +68,7 @@ class ActionController extends Controller
                 $data = $this->notification->getById($noti_id);
 
                 $jsonStr = json_encode($data);
-                event(new Message($jsonStr));
+                event(new Message($jsonStr,"tra-vh"));
             }
 
 
@@ -84,7 +84,6 @@ class ActionController extends Controller
         $i_content = $request->input('content');
         $i_post_id = $request->input('post_id');
         $i_username = auth()->user()->username;
-
 
             // Gọi thủ tục handleReact
             $result = DB::select("CALL createComment(:i_content, :i_post_id, :i_username, :i_created_at)", [
