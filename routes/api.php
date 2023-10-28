@@ -71,10 +71,14 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::prefix('action')->group(function () {
         Route::get('/get-resultview', [ActionController::class,'getResultview']);
-        Route::post('/handle-react', [ActionController::class,'handleReact']);
+        Route::post('/create-react', [ActionController::class,'createReact']);
+        Route::post('/delete-react', [ActionController::class,'deleteReact']);
+        Route::post('/list-comment', [ActionController::class,'getListComment']);
         Route::post('/create-comment', [ActionController::class,'createComment']);
         Route::post('/update-comment', [ActionController::class,'updateComment']);
         Route::post('/delete-comment', [ActionController::class,'deleteComment']);
+        Route::post('/get-profile', [ActionController::class,'getProfile']);
+        Route::post('/handle-relationship', [ActionController::class,'handleRelationship']);
     });
 
     Route::prefix('notification')->group(function () {

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use DB;
 
+
 class ActionController extends Controller
 {
     protected $account;
@@ -45,19 +46,18 @@ class ActionController extends Controller
         }
     }
 
-
-    public function handleReact(Request $request)
+    //tạo like
+    public function createReact(Request $request)
     {
-        // dd(auth()->user()->username);
+        //dd($request->input('username'),$request->input('type'),$request->input('post_id'));
         date_default_timezone_set('Asia/Ho_Chi_Minh');
         // Các tham số đầu vào
         $i_react_type = $request->input('type');
         $i_post_id = $request->input('post_id');
         $i_username = auth()->user()->username;
 
-
-            // Gọi thủ tục handleReact
-            $result = DB::select("CALL handleReact(:i_react_type, :i_post_id, :i_username, :i_created_at)", [
+            // Gọi thủ tục createReact
+            $result = DB::select("CALL createReact(:i_react_type, :i_post_id, :i_username, :i_created_at)", [
                 'i_react_type' => $i_react_type,
                 'i_post_id' => $i_post_id,
                 'i_username' => $i_username,
@@ -70,11 +70,49 @@ class ActionController extends Controller
                 $jsonStr = json_encode($data);
                 event(new NotificationEvent($jsonStr,$result[0]->username));
             }
-
             // Trả về kết quả
             return response()->success($result,"Thực hiện thành công rồi!", 201);
     }
 
+
+    //xóa like
+    public function deleteReact(Request $request)
+    {
+        //dd($request->input('post_id'),$request->input('username'));
+        $i_post_id = $request->input('post_id');
+        $i_username = auth()->user()->username;
+
+            // Gọi thủ tục deleteReact
+            $result = DB::select("CALL deleteReact(:i_post_id, :i_username)", [
+                'i_post_id' => $i_post_id,
+                'i_username' => $i_username,
+            ]);
+            // Trả về kết quả
+            return response()->success($result,"Thực hiện thành công rồi!", 200);
+    }
+
+    //lấy danh sách comment
+    public function getListComment(Request $request)
+    {
+        // dd(auth()->user()->username);
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        // Các tham số đầu vào
+        $i_post_id = $request->input('post_id');
+        $i_username = auth()->user()->username;
+
+            // Gọi thủ tục handleReact
+            $result = DB::select("SELECT Comment.*,fullname from Comment 
+                                JOIN Account
+                                 on Comment.username = Account.username
+                                 WHERE post_id = :i_post_id", [
+                'i_post_id' => $i_post_id,
+            ]);
+
+            // Trả về kết quả
+            return response()->success($result, "Lấy danh sách comment thành công!", 200);
+    }
+
+    //tạo comment
     public function createComment(Request $request)
     {
         // dd(auth()->user()->username);
@@ -95,12 +133,13 @@ class ActionController extends Controller
             $data = $this->notification->getById($noti_id);
 
             $jsonStr = json_encode($data);
-            event(new NotificationEvent($jsonStr,$result[0]->username));
+            event(new NotificationEvent($jsonStr,$data[0]->username));
 
             // Trả về kết quả
             return response()->success($result, "Tạo comment thành công!", 201);
     }
 
+    //sửa comment
     public function updateComment(Request $request)
     {
         $i_comment_id = $request->input('comment_id');
@@ -110,13 +149,16 @@ class ActionController extends Controller
         $result = DB::table('Comment')
             ->where('comment_id', $i_comment_id)
             ->update(['content' => $i_content]);
-            
+
+
+
         // Trả về thông báo
         return response()->success($result, "Sửa comment thành công", 200);
         // Trả về kết quả
 
     }
 
+    //xoá comment
     public function deleteComment(Request $request)
     {
         $comment_id = $request->input('comment_id');
@@ -125,16 +167,46 @@ class ActionController extends Controller
             ->where('comment_id', $comment_id)
             ->delete();
 
-        // Trả về kết quả
-        // if ($result) {
-        //     $message = "Xóa bình luận thành công";
-        // } else {
-        //     $message = "Không tìm thấy bình luận để xóa";
-        // }
+
 
         // Trả về thông báo
         return response()->success($result,"Xóa comment thành công", 200);
     }
 
+    //lấy profile
+    public function getProfile(Request $request)
+    {
+        //dd(auth()->user()->username,$request->input('username'));
+        // Các tham số đầu vào
+        $i_current_username = auth()->user()->username;
+        $i_profile_username = $request->input('username');
+
+            // Gọi thủ tục handleReact
+            $result = DB::select("CALL getProfile(:i_current_username, :i_profile_username)", [
+                'i_current_username' => $i_current_username,
+                'i_profile_username' => $i_profile_username
+            ]);
+        return response()->success($result,"Lấy profile thành công", 200);
+    }
+    //kết bạn, hủy kết bạn
+    public function handleRelationship(Request $request)
+    {
+        dd(auth()->user()->username,$request->input('target_username'));
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        // Các tham số đầu vào
+        $i_action = $request->input('action');
+        $i_source_username = auth()->user()->username;
+        $i_target_username = $request->input('target_username');
+
+
+            // Gọi thủ tục handleReact
+            $result = DB::select("CALL handleRelationship(:i_action, :i_source_username, :i_target_username, :i_created_at)", [
+                'i_action' => $i_action,
+                'i_source_username' => $i_source_username,
+                'i_target_username' => $i_target_username,
+                'i_created_at' => date('Y-m-d H:i:s'),
+            ]);
+        return response()->success($result,"Thực hiện thành công", 200);
+    }
 }
 
