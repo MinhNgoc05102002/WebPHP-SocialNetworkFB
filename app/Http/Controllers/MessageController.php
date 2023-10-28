@@ -10,6 +10,7 @@ use App\Http\Requests\PostRequest;
 use App\Models\ChatSession;
 use App\Models\AccountHasChatSession;
 use App\Models\Account;
+use App\Events\MessageEvent;
 
 use DB;
 
@@ -63,7 +64,6 @@ class MessageController extends Controller
 
         if (!$chatSession) {
             return response()->error('Không tìm thấy đoạn chat để thêm tin nhắn!', Response::HTTP_NOT_FOUND);
-            //return response()->json(['message' => 'ChatSession not found'], 404);
         }
         try{
             $message = new Message();
@@ -73,11 +73,31 @@ class MessageController extends Controller
             date_default_timezone_set('Asia/Ho_Chi_Minh');
             $message->created_at = date('Y-m-d H:i:s');
             $message->save();
-
+            
+            //gửi event
+            $jsonStr = json_encode($message);
+            event(new MessageEvent($jsonStr, getChatPartner($chatId)));
             return response()->success($message, 'Tin nhắn đã được gửi(thêm)!', 201);
         }catch(Exception $e){
             throw $e;
         }
+    }
+
+    public function getChatPartner($chatId){
+        $currUsername = auth()->user()->username;
+        
+        // Lấy danh sách usernames thuộc chatsession
+        $usernamesInChatSession = DB::table('AccountHasChatSession')
+        ->select('username')
+        ->where('chat_id', $chatId)
+        ->where('username', '<>', $currUsername)
+        ->pluck('username')
+        ->toArray();
+
+        if (empty($usernamesInChatSession)) {
+            return "";
+        }
+        return $usernamesInChatSession[0];
     }
 
     public function changeName(Request $request)
