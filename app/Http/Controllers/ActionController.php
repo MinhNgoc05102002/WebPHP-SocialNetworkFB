@@ -66,11 +66,10 @@ class ActionController extends Controller
             if($result[0]->check_reacted==0){
                 $noti_id = $result[0]->noti_id;
                 $data = $this->notification->getById($noti_id);
-
+                
                 $jsonStr = json_encode($data);
                 event(new NotificationEvent($jsonStr,$result[0]->username));
             }
-
 
             // Trả về kết quả
             return response()->success($result,"Thực hiện thành công rồi!", 201);
@@ -111,13 +110,7 @@ class ActionController extends Controller
         $result = DB::table('Comment')
             ->where('comment_id', $i_comment_id)
             ->update(['content' => $i_content]);
-
-        // if ($result) {
-        //     $message = "Sửa thành công";
-        // } else {
-        //     $message = "";
-        // }
-
+            
         // Trả về thông báo
         return response()->success($result, "Sửa comment thành công", 200);
         // Trả về kết quả
