@@ -51,7 +51,7 @@ class Account extends Authenticatable
     public function getNumNewAccount(){
         $num = DB::select(' SELECT count(*) as num_new_acc
                             FROM Account
-                            WHERE datediff(created_at, now()) <= 7; ');
+                            WHERE datediff(now(), created_at) <= 7; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_acc;
     }
@@ -110,7 +110,7 @@ class Account extends Authenticatable
 
 
     public function getNumNewAccountByDate(){
-        return DB::select(' SELECT dates.creation_date, COUNT(Account.username) AS account_count
+        return DB::select(' SELECT dates.creation_date, COUNT(Account.username) AS count
                             FROM (
                                 SELECT DATE(DATE_SUB(NOW(), INTERVAL n DAY)) AS creation_date
                                 FROM (
