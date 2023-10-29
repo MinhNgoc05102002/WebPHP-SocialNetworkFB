@@ -17,10 +17,24 @@ use DB;
 class MessageController extends Controller
 {
     /*
-        1: tra ve sucess thay vi json
-        vd: return response()->success($items,"Lấy danh sách thành công", Response::HTTP_OK);
-        (object, "comment", status_code vd 200 = success)
+        Route::prefix('message')->group(function () {
+        //KO CAN request - response: $chatsessions
+        Route::get('/', [MessageController::class,'index']);
+        //KO CAN request - response: $result{'messages' => $messages,'accounts' => $accounts}
+        Route::get('chatsession/{chatId}', [MessageController::class, 'getChatSession']);
+        //request: message, chat_id
+        Route::post('addmessage', [MessageController::class, 'addMessage']);
+        //request: chat_id, name
+        Route::put('chatsession/changename', [MessageController::class, 'changeName']);
+        //KO CAN request
+        Route::delete('chatsession/delete/{chatId}', [MessageController::class, 'deleteChatSession']);
+        //request: name
+        Route::post('chatsession/create', [MessageController::class, 'createChatSession']);
+        //
+        Route::post('account', [MessageController::class, 'getChatSessionByUsername']);
+    });
     */
+
     public function index() {
         $username = auth()->user()->username;
         $query = "SELECT cs.chat_id, cs.name
@@ -28,12 +42,38 @@ class MessageController extends Controller
                 INNER JOIN AccountHasChatSession acs ON cs.chat_id = acs.chat_id
                 INNER JOIN Account a ON acs.username = a.username
                 WHERE a.username = :username";
-
+    
         $chatSessions = DB::select($query, ['username' => $username]);
         if (!$chatSessions) {
             return response()->success([], 'Người dùng ' . $username . ' không ở trong đoạn chat nào!', Response::HTTP_OK);
         }
-        return response()->success($chatSessions, 'Lấy tất cả các đoạn chat thành công!', Response::HTTP_OK);
+    
+        $result = [];
+        foreach ($chatSessions as $chatSession) {
+            $chatId = $chatSession->chat_id;
+            $account = $this->getChatPartner($chatId);
+            $lastMessage = $this->getLastMessage($chatId); // Lấy tin nhắn mới nhất
+
+            if ($account) {
+                array_push($result, [
+                        'chatSession' => $chatSession,
+                        'account' => $account,
+                        'message' => $lastMessage
+                    ]
+                );
+            }
+        }
+        
+
+        return response()->success($result, 'Lấy tất cả các đoạn chat thành công!', Response::HTTP_OK);
+    }
+
+    // Hàm để lấy tin nhắn mới nhất cho một đoạn chat session
+    private function getLastMessage($chatId) {
+        $query = "SELECT * FROM Message WHERE chat_id = :chatId ORDER BY created_at DESC LIMIT 1";
+        $lastMessage = DB::select($query, ['chatId' => $chatId]);
+
+        return $lastMessage ? $lastMessage[0] : null;
     }
 
     public function getChatSession($chatId)
@@ -45,12 +85,10 @@ class MessageController extends Controller
         $messages = Message::where('chat_id', $chatId)->get();
 
         // Sử dụng Eloquent để lấy danh sách tài khoản thuộc chat session có chat_id = 1
-        $accounts = Account::join('AccountHasChatSession', 'Account.username', '=', 'AccountHasChatSession.username')
-            ->where('AccountHasChatSession.chat_id', $chatId)
-            ->get();
+        $account = $this->getChatPartner($chatId);
         $result = [
             'messages' => $messages,
-            'accounts' => $accounts
+            'account' => $account
         ];
         return response()->success($result, 'Lấy tin nhắn và các tài khoản trong đoạn chat thành công!', Response::HTTP_OK);
     }
@@ -76,7 +114,7 @@ class MessageController extends Controller
             
             //gửi event
             $jsonStr = json_encode($message);
-            event(new MessageEvent($jsonStr, getChatPartner($chatId)));
+            event(new MessageEvent($jsonStr, $this->getChatPartner($chatId)->username));
             return response()->success($message, 'Tin nhắn đã được gửi(thêm)!', 201);
         }catch(Exception $e){
             throw $e;
@@ -88,17 +126,24 @@ class MessageController extends Controller
         
         // Lấy danh sách usernames thuộc chatsession
         $usernamesInChatSession = DB::table('AccountHasChatSession')
-        ->select('username')
-        ->where('chat_id', $chatId)
-        ->where('username', '<>', $currUsername)
-        ->pluck('username')
-        ->toArray();
-
+            ->select('username')
+            ->where('chat_id', $chatId)
+            ->where('username', '<>', $currUsername)
+            ->pluck('username')
+            ->toArray();
+    
         if (empty($usernamesInChatSession)) {
-            return "";
+            return null; // Hoặc bạn có thể xử lý lỗi tại đây
         }
-        return $usernamesInChatSession[0];
+    
+        // Lấy thông tin tài khoản của đối tác
+        $partnerAccount = DB::table('Account')
+            ->where('username', $usernamesInChatSession[0])
+            ->first();
+    
+        return $partnerAccount;
     }
+    
 
     public function changeName(Request $request)
     {
@@ -130,44 +175,44 @@ class MessageController extends Controller
         return response()->success([], 'Xóa đoạn chat thành công!', 200);
     }
 
-    public function addAccountToChat(Request $request){
-        $chat_id = $request->input('chat_id');
-        $chatSession = ChatSession::where('chat_id', $chat_id)->first();
+    // public function addAccountToChat(Request $request){
+    //     $chat_id = $request->input('chat_id');
+    //     $chatSession = ChatSession::where('chat_id', $chat_id)->first();
 
-        if (!$chatSession) {
-            return response()->error('Không tìm thấy đoạn chat!', Response::HTTP_NOT_FOUND);
-        }
-        try{
-            $AccountHasChat = new AccountHasChatSession();
-            $AccountHasChat->username = $request->input('username');
-            $AccountHasChat->chat_id = $chat_id;
-            date_default_timezone_set('Asia/Ho_Chi_Minh');
-            $AccountHasChat->time_send = date('Y-m-d H:i:s');
-            $AccountHasChat->save();
+    //     if (!$chatSession) {
+    //         return response()->error('Không tìm thấy đoạn chat!', Response::HTTP_NOT_FOUND);
+    //     }
+    //     try{
+    //         $AccountHasChat = new AccountHasChatSession();
+    //         $AccountHasChat->username = $request->input('username');
+    //         $AccountHasChat->chat_id = $chat_id;
+    //         date_default_timezone_set('Asia/Ho_Chi_Minh');
+    //         $AccountHasChat->time_send = date('Y-m-d H:i:s');
+    //         $AccountHasChat->save();
 
-            return response()->success([], 'Thêm người dùng vào đoạn chat thành công!', 200);
-        }
-        catch(Exception $ex){
-            throw $ex;
-        }
-    }
-
-    public function createChatSession(Request $request){
-        try{
-            $chatSession = new ChatSession();
-            $chatSession->name = $request->input('name');
-            $chatSession->save();
-
-            return response()->success([], 'Tạo đoạn chat thành công!', 200);
-        }
-        catch(Exception $ex){
-            throw $ex;
-        }
-    }
-    
-    // public function search(Request $request){
+    //         return response()->success([], 'Thêm người dùng vào đoạn chat thành công!', 200);
+    //     }
+    //     catch(Exception $ex){
+    //         throw $ex;
+    //     }
     // }
 
-    // public function 
+    public function getChatSessionByUsername(Request $request, $username){
+        $currUsername = auth()->user()->username;
+        $partnerUsername = $username;//$request->input('username');
 
+        try{
+            $result = DB::select("call handleChatSession(:i_current_username, :i_partner_username);",[
+                'i_current_username' => $currUsername,
+                'i_partner_username' => $partnerUsername,
+            ]);
+            
+            //dd($result);
+            return $this->getChatSession((string) $result[0]->chat_id);
+            //return response()->success([], 'Tạo đoạn chat thành công!', 200);
+        }
+        catch(Exception $ex){
+            throw $ex;
+        }
+    }
 }

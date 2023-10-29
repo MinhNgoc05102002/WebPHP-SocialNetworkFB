@@ -43,20 +43,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     */
     Route::prefix('message')->group(function () {
-        //KO CAN request - response: $chatsessions
         Route::get('/', [MessageController::class,'index']);
-        //KO CAN request - response: $result{'messages' => $messages,'accounts' => $accounts}
         Route::get('chatsession/{chatId}', [MessageController::class, 'getChatSession']);
-        //request: message, chat_id
         Route::post('addmessage', [MessageController::class, 'addMessage']);
-        //request: chat_id, name
         Route::put('chatsession/changename', [MessageController::class, 'changeName']);
-        //KO CAN request
         Route::delete('chatsession/delete/{chatId}', [MessageController::class, 'deleteChatSession']);
-        //request: chat_id, username
-        Route::post('chatsession/addAccount', [MessageController::class, 'addAccountToChat']);
-        //request: name
         Route::post('chatsession/create', [MessageController::class, 'createChatSession']);
+        Route::post('username/{username}', [MessageController::class, 'getChatSessionByUsername']);
     });
 
     Route::post('/logout', [AuthController::class,'logout']);
