@@ -7,7 +7,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\Channel;
 
-class Message implements ShouldBroadcast
+class NotificationEvent implements ShouldBroadcast
 {
   use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,6 +26,6 @@ class Message implements ShouldBroadcast
 
   public function broadcastAs()
   {
-      return 'message';
+      return 'notification';
   }
 }
