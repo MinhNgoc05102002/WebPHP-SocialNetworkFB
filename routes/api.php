@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('chatsession/changename', [MessageController::class, 'changeName']);
         Route::delete('chatsession/delete/{chatId}', [MessageController::class, 'deleteChatSession']);
         Route::post('chatsession/create', [MessageController::class, 'createChatSession']);
-        Route::post('username/{username}', [MessageController::class, 'getChatSessionByUsername']);
+        Route::post('username/getChatId', [MessageController::class, 'getChatSessionByUsername']);
     });
 
     Route::post('/logout', [AuthController::class,'logout']);

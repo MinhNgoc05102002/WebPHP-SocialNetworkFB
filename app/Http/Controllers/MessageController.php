@@ -197,9 +197,12 @@ class MessageController extends Controller
     //     }
     // }
 
-    public function getChatSessionByUsername(Request $request, $username){
+    public function getChatSessionByUsername(Request $request){
         $currUsername = auth()->user()->username;
-        $partnerUsername = $username;//$request->input('username');
+        $partnerUsername = $request->input('username');
+        if (!$partnerUsername){
+            return response()->error('Không tìm thấy gì!', Response::HTTP_NOT_FOUND);
+        }
 
         try{
             $result = DB::select("call handleChatSession(:i_current_username, :i_partner_username);",[
@@ -207,9 +210,8 @@ class MessageController extends Controller
                 'i_partner_username' => $partnerUsername,
             ]);
             
-            //dd($result);
-            return $this->getChatSession((string) $result[0]->chat_id);
-            //return response()->success([], 'Tạo đoạn chat thành công!', 200);
+            $chat_id = (string) $result[0]->chat_id;
+            return response()->success($chat_id, 'Lấy chat id thành công!', 200);
         }
         catch(Exception $ex){
             throw $ex;
