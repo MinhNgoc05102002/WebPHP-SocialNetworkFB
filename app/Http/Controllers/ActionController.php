@@ -54,8 +54,7 @@ class ActionController extends Controller
         // Các tham số đầu vào
         $i_react_type = $request->input('type');
         $i_post_id = $request->input('post_id');
-        $i_username = $request->input('username');
-
+        $i_username = auth()->user()->username;
 
             // Gọi thủ tục createReact
             $result = DB::select("CALL createReact(:i_react_type, :i_post_id, :i_username, :i_created_at)", [
@@ -67,7 +66,7 @@ class ActionController extends Controller
             if($result[0]->check_reacted==0){
                 $noti_id = $result[0]->noti_id;
                 $data = $this->notification->getById($noti_id);
-
+                
                 $jsonStr = json_encode($data);
                 event(new NotificationEvent($jsonStr,$result[0]->username));
             }
@@ -81,7 +80,7 @@ class ActionController extends Controller
     {
         //dd($request->input('post_id'),$request->input('username'));
         $i_post_id = $request->input('post_id');
-        $i_username = $request->input('username');
+        $i_username = auth()->user()->username;
 
             // Gọi thủ tục deleteReact
             $result = DB::select("CALL deleteReact(:i_post_id, :i_username)", [
@@ -90,6 +89,27 @@ class ActionController extends Controller
             ]);
             // Trả về kết quả
             return response()->success($result,"Thực hiện thành công rồi!", 200);
+    }
+
+    //lấy danh sách comment
+    public function getListComment(Request $request)
+    {
+        // dd(auth()->user()->username);
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        // Các tham số đầu vào
+        $i_post_id = $request->input('post_id');
+        $i_username = auth()->user()->username;
+
+            // Gọi thủ tục handleReact
+            $result = DB::select("SELECT Comment.*,fullname from Comment 
+                                JOIN Account
+                                 on Comment.username = Account.username
+                                 WHERE post_id = :i_post_id", [
+                'i_post_id' => $i_post_id,
+            ]);
+
+            // Trả về kết quả
+            return response()->success($result, "Lấy danh sách comment thành công!", 200);
     }
 
     //tạo comment
@@ -113,7 +133,7 @@ class ActionController extends Controller
             $data = $this->notification->getById($noti_id);
 
             $jsonStr = json_encode($data);
-            event(new NotificationEvent($jsonStr,$result[0]->username));
+            event(new NotificationEvent($jsonStr,$data[0]->username));
 
             // Trả về kết quả
             return response()->success($result, "Tạo comment thành công!", 201);
