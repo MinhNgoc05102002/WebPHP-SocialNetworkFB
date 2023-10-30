@@ -85,10 +85,10 @@ class MessageController extends Controller
         $messages = Message::where('chat_id', $chatId)->get();
 
         // Sử dụng Eloquent để lấy danh sách tài khoản thuộc chat session có chat_id = 1
-        $account = $this->getChatPartner($chatId);
+        $accounts = $this->getChatPartner($chatId);
         $result = [
             'messages' => $messages,
-            'account' => $account
+            'accounts' => $accounts
         ];
         return response()->success($result, 'Lấy tin nhắn và các tài khoản trong đoạn chat thành công!', Response::HTTP_OK);
     }
@@ -114,7 +114,13 @@ class MessageController extends Controller
             
             //gửi event
             $jsonStr = json_encode($message);
-            event(new MessageEvent($jsonStr, $this->getChatPartner($chatId)->username));
+            $partnerAccounts = getChatPartner($chatId);
+
+            foreach ($partnerAccounts as $partner){
+                $nameChanel = $chatId.".".$partner->username;
+                event(new MessageEvent($jsonStr, $nameChanel));
+            }
+            
             return response()->success($message, 'Tin nhắn đã được gửi(thêm)!', 201);
         }catch(Exception $e){
             throw $e;
@@ -133,15 +139,15 @@ class MessageController extends Controller
             ->toArray();
     
         if (empty($usernamesInChatSession)) {
-            return null; // Hoặc bạn có thể xử lý lỗi tại đây
+            return []; // Hoặc bạn có thể xử lý lỗi tại đây
         }
     
         // Lấy thông tin tài khoản của đối tác
-        $partnerAccount = DB::table('Account')
-            ->where('username', $usernamesInChatSession[0])
-            ->first();
+        $partnerAccounts = DB::table('Account')
+            ->whereIn('username', $usernamesInChatSession)
+            ->get();
     
-        return $partnerAccount;
+        return $partnerAccounts;
     }
     
 
