@@ -21,7 +21,7 @@ class MessageEvent implements ShouldBroadcast
 
   public function broadcastOn()
   {
-      return 'message.'.$this->username;
+      return 'chat.'.$this->username;
   }
 
   public function broadcastAs()
