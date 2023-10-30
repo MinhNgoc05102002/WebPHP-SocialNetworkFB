@@ -30,7 +30,9 @@ Route::prefix('admin')->group(function () {
     Route::post('/get-reported-post', [AdminController::class,'getReportedPost']);
     Route::post('/get-reported-acc', [AdminController::class,'getReportedAcc']);
     Route::post('/handle-block-acc', [AdminController::class,'handleBlockAcc']);
+    Route::post('/handle-block-post', [AdminController::class,'handleBlockPost']);
     Route::post('/send-warning-acc', [AdminController::class,'sendWarningAcc']);
+    Route::post('/get-blocked-post', [AdminController::class,'getBlockedPost']);
 });
 
 
@@ -44,12 +46,13 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::prefix('message')->group(function () {
         Route::get('/', [MessageController::class,'index']);
-        Route::get('chatsession/{chatId}', [MessageController::class, 'getChatSession']);
-        Route::post('addmessage', [MessageController::class, 'addMessage']);
-        Route::put('chatsession/changename', [MessageController::class, 'changeName']);
-        Route::delete('chatsession/delete/{chatId}', [MessageController::class, 'deleteChatSession']);
-        Route::post('chatsession/create', [MessageController::class, 'createChatSession']);
-        Route::post('username/getChatId', [MessageController::class, 'getChatSessionByUsername']);
+        Route::get('/get-chatsession/{chatId}', [MessageController::class, 'getChatSession']);
+        Route::post('/add-message', [MessageController::class, 'addMessage']);
+        Route::post('/get-chat-id-by-username', [MessageController::class, 'getChatSessionByUsername']);
+
+        Route::post('/changename', [MessageController::class, 'changeName']);
+        Route::post('/delete-chatsesion/{chatId}', [MessageController::class, 'deleteChatSession']);
+        Route::post('/create-chatsession', [MessageController::class, 'createChatSession']);
     });
 
     Route::post('/logout', [AuthController::class,'logout']);
