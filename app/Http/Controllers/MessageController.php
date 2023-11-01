@@ -42,12 +42,12 @@ class MessageController extends Controller
                 INNER JOIN AccountHasChatSession acs ON cs.chat_id = acs.chat_id
                 INNER JOIN Account a ON acs.username = a.username
                 WHERE a.username = :username";
-    
+
         $chatSessions = DB::select($query, ['username' => $username]);
         if (!$chatSessions) {
             return response()->success([], 'Người dùng ' . $username . ' không ở trong đoạn chat nào!', Response::HTTP_OK);
         }
-    
+
         $result = [];
         foreach ($chatSessions as $chatSession) {
             $chatId = $chatSession->chat_id;
@@ -63,7 +63,7 @@ class MessageController extends Controller
                 );
             }
         }
-        
+
 
         return response()->success($result, 'Lấy tất cả các đoạn chat thành công!', Response::HTTP_OK);
     }
@@ -111,16 +111,16 @@ class MessageController extends Controller
             date_default_timezone_set('Asia/Ho_Chi_Minh');
             $message->created_at = date('Y-m-d H:i:s');
             $message->save();
-            
+
             //gửi event
             $jsonStr = json_encode($message);
-            $partnerAccounts = getChatPartner($chatId);
+            $partnerAccounts = $this->getChatPartner($chatId);
 
             foreach ($partnerAccounts as $partner){
                 $nameChanel = $chatId.".".$partner->username;
                 event(new MessageEvent($jsonStr, $nameChanel));
             }
-            
+
             return response()->success($message, 'Tin nhắn đã được gửi(thêm)!', 201);
         }catch(Exception $e){
             throw $e;
@@ -129,7 +129,7 @@ class MessageController extends Controller
 
     public function getChatPartner($chatId){
         $currUsername = auth()->user()->username;
-        
+
         // Lấy danh sách usernames thuộc chatsession
         $usernamesInChatSession = DB::table('AccountHasChatSession')
             ->select('username')
@@ -137,19 +137,19 @@ class MessageController extends Controller
             ->where('username', '<>', $currUsername)
             ->pluck('username')
             ->toArray();
-    
+
         if (empty($usernamesInChatSession)) {
             return []; // Hoặc bạn có thể xử lý lỗi tại đây
         }
-    
+
         // Lấy thông tin tài khoản của đối tác
         $partnerAccounts = DB::table('Account')
             ->whereIn('username', $usernamesInChatSession)
             ->get();
-    
+
         return $partnerAccounts;
     }
-    
+
 
     public function changeName(Request $request)
     {
@@ -215,7 +215,7 @@ class MessageController extends Controller
                 'i_current_username' => $currUsername,
                 'i_partner_username' => $partnerUsername,
             ]);
-            
+
             $chat_id = (string) $result[0]->chat_id;
             return response()->success($chat_id, 'Lấy chat id thành công!', 200);
         }
