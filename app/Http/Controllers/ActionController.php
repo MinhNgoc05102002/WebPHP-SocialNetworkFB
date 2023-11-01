@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\Post;
 use App\Models\React;
-use App\Events\Message;
+use App\Events\NotificationEvent;
 use App\Models\Notification;
 use Exception;
 use Illuminate\Http\Request;
@@ -76,9 +76,9 @@ class ActionController extends Controller
             if($result[0]->check_reacted==0){
                 $noti_id = $result[0]->noti_id;
                 $data = $this->notification->getById($noti_id);
-
+                
                 $jsonStr = json_encode($data);
-                event(new Message($jsonStr));
+                event(new NotificationEvent($jsonStr,$result[0]->username));
             }
             // Trả về kết quả
             return response()->success($result,"Thực hiện thành công rồi!", 201);
@@ -106,6 +106,27 @@ class ActionController extends Controller
             ]);
             // Trả về kết quả
             return response()->success($result,"Thực hiện thành công rồi!", 200);
+    }
+
+    //lấy danh sách comment
+    public function getListComment(Request $request)
+    {
+        // dd(auth()->user()->username);
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        // Các tham số đầu vào
+        $i_post_id = $request->input('post_id');
+        $i_username = auth()->user()->username;
+
+            // Gọi thủ tục handleReact
+            $result = DB::select("SELECT Comment.*,fullname from Comment 
+                                JOIN Account
+                                 on Comment.username = Account.username
+                                 WHERE post_id = :i_post_id", [
+                'i_post_id' => $i_post_id,
+            ]);
+
+            // Trả về kết quả
+            return response()->success($result, "Lấy danh sách comment thành công!", 200);
     }
 
     //tạo comment
@@ -137,7 +158,7 @@ class ActionController extends Controller
             $data = $this->notification->getById($noti_id);
 
             $jsonStr = json_encode($data);
-            event(new Message($jsonStr));
+            event(new NotificationEvent($jsonStr,$data[0]->username));
 
             // Trả về kết quả
             return response()->success($result, "Tạo comment thành công!", 201);

@@ -16,8 +16,7 @@ use Exception;
 
 class NotifiController extends Controller
 {
-    protected $post;
-    protected $account;   
+    protected $notification;  
     public function __construct(Notification $notification) {
         $this->notification = $notification;
     }

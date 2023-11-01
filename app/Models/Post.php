@@ -18,13 +18,11 @@ class Post extends Model
         $count_page = intval($pageCount);
         $index_page = intval($pageIndex);
         $post = [];
-        if($count_page && $index_page){
-            $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[
-                'current_username' => $username,
-                'page_index' => $index_page,
-                'page_size' => $count_page,
-            ]);
-        }
+        $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[ 
+            'current_username' => $username,
+            'page_index' => $index_page,
+            'page_size' => $count_page,
+        ]);
 
         return $post;
     }
@@ -37,15 +35,12 @@ class Post extends Model
         if($username_profile){
             $userProfile = $username_profile;
         }
-        if($count_page && $index_page){
-
-            $post = DB::select("CALL getProfilePost(:profile_username, :current_username, :page_index, :page_size)",[
-                'current_username' => $username,
-                'profile_username' => $userProfile,
-                'page_index' => $index_page,
-                'page_size' => $count_page,
-            ]);
-        }
+        $post = DB::select("CALL getProfilePost(:profile_username, :current_username, :page_index, :page_size)",[
+            'current_username' => $username,
+            'profile_username' => $userProfile,
+            'page_index' => $index_page,
+            'page_size' => $count_page,
+        ]);
 
         return $post;
     }
@@ -58,6 +53,7 @@ class Post extends Model
         //     $data['audience_type'],
         //     $mediaJson
         // ]);
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
         $insertedId = DB::table('Post')->insertGetId([
             'username' => $username,
             'content' => $data['content'],
@@ -65,15 +61,17 @@ class Post extends Model
             'audience_type' => $data['audience_type'],
             'media_info' => $mediaJson
         ]);
-        $post = DB::table('Post')->where('post_id', $insertedId)->first();
-        return $post;
+        $post = DB::select('SELECT Post.*, Account.fullname FROM Post JOIN Account on Post.username = Account.username WHERE post_id = :post_id',[
+            'post_id' => $insertedId
+        ]);
+        return $post[0];
     }
 
 
 
     public function updatePost($data,$post,$username,$media){
         $mediaJson = $media;
-
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
         // Thực hiện cập nhật bản ghi
         $isUpdate = DB::table('Post')
             ->where('post_id', $data['id_post'])
@@ -84,9 +82,9 @@ class Post extends Model
                 'media_info' => $mediaJson,
             ]);
         if($isUpdate){
-            $updatedPost = DB::table('Post')
-            ->where('post_id', $data['id_post'])
-            ->first();
+            $updatedPost = DB::select('SELECT Post.*, Account.fullname FROM Post JOIN Account on Post.username = Account.username WHERE post_id = :post_id',[
+                'post_id' => $data['id_post']
+            ]);
 
             return $updatedPost;
         }
@@ -96,6 +94,7 @@ class Post extends Model
     }
 
     public function deletePost($data,$username){
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
         $post = DB::update(
             'UPDATE Post SET is_deleted = ? WHERE post_id = ? AND username = ?',
             [

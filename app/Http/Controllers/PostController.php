@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use App\Events\Message;
+use App\Events\YourEventName;
 use DB;
 use Exception;
 
@@ -152,7 +153,7 @@ class PostController extends Controller
             'username' => 'duc'
         ];
         $jsonStr = json_encode($data);
-        event(new Message($jsonStr));
+        event(new Message($jsonStr,'tra-vh'));
         return response()->success([],"Bài viết không tồn tại !", 401);
     }
 }
