@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ActionController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotifiController;
@@ -67,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/get-post-by-id', [PostController::class,'getPostById']);
 
     });
+
     Route::prefix('action')->group(function () {
         Route::get('/get-resultview', [ActionController::class,'getResultview']);
         Route::post('/create-react', [ActionController::class,'createReact']);
@@ -80,6 +82,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/search-accounts-posts', [ActionController::class,'searchAccountsAndPosts']);
         Route::post('/update-profile', [ActionController::class,'updateProfile']);
         Route::post('/change-password', [ActionController::class,'changePassword']);
+        Route::post('/change-avatar', [AccountController::class,'uploadAvatar']);
+        Route::post('/change-cover-bg', [AccountController::class,'uploadCoverBackground']);
     });
 
     Route::prefix('notification')->group(function () {
