@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Auth;
+use DB;
 
 class AccountController extends Controller
 {
@@ -49,6 +50,64 @@ class AccountController extends Controller
         $item->delete();
 
         return response()->json(['message' => 'Acc deleted']);
+    }
+
+    public function uploadAvatar(Request $request){
+        try {
+            $username = auth()->user()->username;
+
+            // up ảnh
+            $imageInfo = array();
+            if ($request->hasFile('media')) {
+                $image = $request->file('media');
+                $originalName = $image->getClientOriginalName();
+                $extension = $image->getClientOriginalExtension();
+                $randomString = uniqid();
+                $imageName = time() . '' . $originalName . '' . $randomString . '.' . $extension;
+                $image->move(public_path('storage/media'), $imageName);
+                $imageInfo[] = ['type' => $image->getClientOriginalExtension(),'name' => $imageName];
+
+                $result = DB::table('Account')
+                    ->where('username', $username)
+                    ->update([
+                        'avatar' => $imageName,
+                    ]);
+                return response()->success($imageName,'Cập nhật avatar thành công',200);
+                
+            }
+            return response()->error('Cập nhật avatar thất bại !',400);
+         } catch (Throwable $th) {
+             throw $th;
+         }
+    }
+
+    public function uploadCoverBackground(Request $request){
+        try {
+            $username = auth()->user()->username;
+
+            // up ảnh
+            $imageInfo = array();
+            if ($request->hasFile('media')) {
+                $image = $request->file('media');
+                $originalName = $image->getClientOriginalName();
+                $extension = $image->getClientOriginalExtension();
+                $randomString = uniqid();
+                $imageName = time() . '' . $originalName . '' . $randomString . '.' . $extension;
+                $image->move(public_path('storage/media'), $imageName);
+                $imageInfo[] = ['type' => $image->getClientOriginalExtension(),'name' => $imageName];
+
+                $result = DB::table('Account')
+                    ->where('username', $username)
+                    ->update([
+                        'cover' => $imageName,
+                    ]);
+                return response()->success($imageName,'Cập nhật cover background thành công',200);
+                
+            }
+            return response()->error('Cập nhật cover background thất bại !',400);
+         } catch (Throwable $th) {
+             throw $th;
+         }
     }
 }
 //route -----
