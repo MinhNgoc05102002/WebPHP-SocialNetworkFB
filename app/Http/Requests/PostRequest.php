@@ -43,7 +43,7 @@ class PostRequest extends FormRequest
                 'id_post' => 'required|string',
                 'content' => 'required|string|',
                 'audience_type' => 'required|string',
-                'media' => 'required|string'
+                // 'media' => 'required|string'
             ]);
         } elseif($this->input('function') === 'D') 
         {
