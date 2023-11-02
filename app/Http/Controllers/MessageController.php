@@ -215,8 +215,9 @@ class MessageController extends Controller
                 'i_current_username' => $currUsername,
                 'i_partner_username' => $partnerUsername,
             ]);
-
-            $chat_id = (string) $result[0]->chat_id;
+            // dd( $result);
+            $chat_id = '';
+            $chat_id = $result[0]->chat_id;
             return response()->success($chat_id, 'Lấy chat id thành công!', 200);
         }
         catch(Exception $ex){
