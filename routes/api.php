@@ -30,7 +30,9 @@ Route::prefix('admin')->group(function () {
     Route::post('/get-reported-post', [AdminController::class,'getReportedPost']);
     Route::post('/get-reported-acc', [AdminController::class,'getReportedAcc']);
     Route::post('/handle-block-acc', [AdminController::class,'handleBlockAcc']);
+    Route::post('/handle-block-post', [AdminController::class,'handleBlockPost']);
     Route::post('/send-warning-acc', [AdminController::class,'sendWarningAcc']);
+    Route::post('/get-blocked-post', [AdminController::class,'getBlockedPost']);
 });
 
 
@@ -43,20 +45,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     */
     Route::prefix('message')->group(function () {
-        //KO CAN request - response: $chatsessions
         Route::get('/', [MessageController::class,'index']);
-        //KO CAN request - response: $result{'messages' => $messages,'accounts' => $accounts}
-        Route::get('chatsession/{chatId}', [MessageController::class, 'getChatSession']);
-        //request: message, chat_id
-        Route::post('addmessage', [MessageController::class, 'addMessage']);
-        //request: chat_id, name
-        Route::put('chatsession/changename', [MessageController::class, 'changeName']);
-        //KO CAN request
-        Route::delete('chatsession/delete/{chatId}', [MessageController::class, 'deleteChatSession']);
-        //request: chat_id, username
-        Route::post('chatsession/addAccount', [MessageController::class, 'addAccountToChat']);
-        //request: name
-        Route::post('chatsession/create', [MessageController::class, 'createChatSession']);
+        Route::get('/get-chatsession/{chatId}', [MessageController::class, 'getChatSession']);
+        Route::post('/add-message', [MessageController::class, 'addMessage']);
+        Route::post('/get-chat-id-by-username', [MessageController::class, 'getChatSessionByUsername']);
+
+        Route::post('/changename', [MessageController::class, 'changeName']);
+        Route::post('/delete-chatsesion/{chatId}', [MessageController::class, 'deleteChatSession']);
+        Route::post('/create-chatsession', [MessageController::class, 'createChatSession']);
     });
 
     Route::post('/logout', [AuthController::class,'logout']);
@@ -67,6 +63,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/handle-post', [PostController::class,'handlePost']);
 
         Route::get('/get-list-profile', [PostController::class,'getListPostProfile']);
+
+        Route::post('/get-post-by-id', [PostController::class,'getPostById']);
 
     });
     Route::prefix('action')->group(function () {
@@ -79,6 +77,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete-comment', [ActionController::class,'deleteComment']);
         Route::post('/get-profile', [ActionController::class,'getProfile']);
         Route::post('/handle-relationship', [ActionController::class,'handleRelationship']);
+        Route::post('/search-accounts-posts', [ActionController::class,'searchAccountsAndPosts']);
+        Route::post('/update-profile', [ActionController::class,'updateProfile']);
+        Route::post('/change-password', [ActionController::class,'changePassword']);
     });
 
     Route::prefix('notification')->group(function () {

@@ -51,7 +51,7 @@ class Account extends Authenticatable
     public function getNumNewAccount(){
         $num = DB::select(' SELECT count(*) as num_new_acc
                             FROM Account
-                            WHERE datediff(created_at, now()) <= 7; ');
+                            WHERE datediff(now(), created_at) <= 7; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_acc;
     }
@@ -110,7 +110,7 @@ class Account extends Authenticatable
 
 
     public function getNumNewAccountByDate(){
-        return DB::select(' SELECT dates.creation_date, COUNT(Account.username) AS account_count
+        return DB::select(' SELECT dates.creation_date, COUNT(Account.username) AS count
                             FROM (
                                 SELECT DATE(DATE_SUB(NOW(), INTERVAL n DAY)) AS creation_date
                                 FROM (
@@ -126,10 +126,10 @@ class Account extends Authenticatable
     }
 
     public function getListReportedAcc($pageIndex, $pageSize) {
-        return DB::select(' SELECT Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date, count(Report.username) as num_report
+        return DB::select(' SELECT Account.username, email, fullname, about_me, location, gender, day_of_birth, Account.status, modified_date, has_warning, Account.created_at, count(Report.username) as num_report
                             from Post join Report on Post.post_id = Report.post_id
                                     join Account on Post.username = Account.username
-                            group by Account.username, email, fullname, about_me, location, gender, day_of_birth, status, modified_date
+                            group by Account.username, email, fullname, about_me, location, gender, day_of_birth, Account.status, modified_date, has_warning, Account.created_at
                             LIMIT ? OFFSET ?;',
                             [
                                 $pageSize,

@@ -132,7 +132,7 @@ class PostController extends Controller
                     }else{
                         return response()->error("Bài viết không tồn tại !", 401);
                     }
-    
+
                     
                 }else{
                     return response()->error("Chức năng không tồn tại !", 401);
@@ -145,6 +145,31 @@ class PostController extends Controller
        }catch(Exception $ex){
             throw $ex;
        }
+    }
+
+    public function getPostById(Request $request){
+            $validator = Validator::make($request->all(),
+            [
+                'post_id'=>'required|string',
+            ]
+            );
+            if ($validator->fails()) {
+                // Xử lý khi validation thất bại, ví dụ trả về lỗi
+                return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            try {
+            $username = auth()->user()->username;
+            $post = $this->post->getPostById($request->input("post_id"),$username);
+            if($post){
+                return response()->success($post,"Lấy chi tiết bài viết thành công", Response::HTTP_OK);
+            }else{
+                return response()->error("Không tồn tại post", Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+        } catch (\Throwable $th) {
+            dd($th);
+            return response()->error($th, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
     }
 
     public function demoNotification(Request $request){
