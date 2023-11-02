@@ -131,27 +131,6 @@ class ActionController extends Controller
             return response()->success($result, "Lấy danh sách comment thành công!", 200);
     }
 
-    //lấy danh sách comment
-    public function getListComment(Request $request)
-    {
-        // dd(auth()->user()->username);
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        // Các tham số đầu vào
-        $i_post_id = $request->input('post_id');
-        $i_username = auth()->user()->username;
-
-            // Gọi thủ tục handleReact
-            $result = DB::select("SELECT Comment.*,fullname from Comment
-                                JOIN Account
-                                 on Comment.username = Account.username
-                                 WHERE post_id = :i_post_id", [
-                'i_post_id' => $i_post_id,
-            ]);
-
-            // Trả về kết quả
-            return response()->success($result, "Lấy danh sách comment thành công!", 200);
-    }
-
     //tạo comment
     public function createComment(Request $request)
     {
@@ -345,38 +324,39 @@ class ActionController extends Controller
     // Cập nhật profile
     public function updateProfile(Request $request)
     {           // Tạo validator để kiểm tra các trường
-        $validator = Validator::make($request->all(), [
-            'fullname' => 'nullable|regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u',
-            'location' => 'nullable',
-            'phone' => ['nullable', 'regex:/^[0-9]{10}$/', 'size:10'],
-            'about_me' => 'nullable',
-            'day_of_birth' => 'nullable',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'fullname' => 'nullable|regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u',
+        //     'location' => 'nullable',
+        //     'phone' => ['nullable', 'regex:/^[0-9]{10}$/', 'size:10'],
+        //     'about_me' => 'nullable',
+        //     'day_of_birth' => 'nullable',
+        // ]);
 
-        // Kiểm tra validator
-        if ($validator->fails()) {
-            //
-            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        // // Kiểm tra validator
+        // if ($validator->fails()) {
+        //     //
+        //     return response()->error("đã xảy ra lỗiiii", Response::HTTP_INTERNAL_SERVER_ERROR);
+        // }
         try{
             $username = auth()->user()->username;
-            $fullname = $request->input('fullname');
+            // $fullname = $request->input('fullname');
             $location = $request->input('location');
             $phone = $request->input('phone');
             $aboutme = $request->input('about_me');
             $day_of_birth = $request->input('day_of_birth');
-
-
+            $gender = $request->input('gender');
+            dd($day_of_birth);
 
             // Cập nhật thông tin cá nhân trong cơ sở dữ liệu
             $result = DB::table('Account')
                     ->where('username', $username)
                     ->update([
-                        'fullname' => $fullname,
+                        // 'fullname' => $fullname,
                         'location' => $location,
                         'phone' => $phone,
                         'about_me' => $aboutme,
-                        'day_of_birth' => $day_of_birth
+                        'day_of_birth' => $day_of_birth,
+                        'gender' => $gender
                     ]);
             //dd($username,$avatar, $fullname,$location,$phone, $aboutme);
             // Trả về thông báo thành công
