@@ -51,12 +51,6 @@ class ActionController extends Controller
     //tạo like
     public function createReact(Request $request)
     {
-        //dd($request->input('username'),$request->input('type'),$request->input('post_id'));
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        // Các tham số đầu vào
-        $i_react_type = $request->input('type');
-        $i_post_id = $request->input('post_id');
-        $i_username = auth()->user()->username;
         $validator = Validator::make($request->all(), [
             'type' => 'required',
             'post_id' => 'required',
@@ -64,8 +58,15 @@ class ActionController extends Controller
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        //dd($request->input('username'),$request->input('type'),$request->input('post_id'));
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        // Các tham số đầu vào
+        $i_react_type = $request->input('type');
+        $i_post_id = $request->input('post_id');
+        $i_username = auth()->user()->username;
+
             // Gọi thủ tục createReact
             $result = DB::select("CALL createReact(:i_react_type, :i_post_id, :i_username, :i_created_at)", [
                 'i_react_type' => $i_react_type,
@@ -88,17 +89,18 @@ class ActionController extends Controller
     //xóa like
     public function deleteReact(Request $request)
     {
-        //dd($request->input('post_id'),$request->input('username'));
-        $i_post_id = $request->input('post_id');
-        $i_username = auth()->user()->username;
         $validator = Validator::make($request->all(), [
             'post_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        //dd($request->input('post_id'),$request->input('username'));
+        $i_post_id = $request->input('post_id');
+        $i_username = auth()->user()->username;
+
             // Gọi thủ tục deleteReact
             $result = DB::select("CALL deleteReact(:i_post_id, :i_username)", [
                 'i_post_id' => $i_post_id,
@@ -111,12 +113,6 @@ class ActionController extends Controller
     //tạo comment
     public function createComment(Request $request)
     {
-        // dd(auth()->user()->username);
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        // Các tham số đầu vào
-        $i_content = $request->input('content');
-        $i_post_id = $request->input('post_id');
-        $i_username = auth()->user()->username;
         $validator = Validator::make($request->all(), [
             'content' => 'required',
             'post_id' => 'required',
@@ -124,31 +120,35 @@ class ActionController extends Controller
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        // dd(auth()->user()->username);
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        // Các tham số đầu vào
+        $i_content = $request->input('content');
+        $i_post_id = $request->input('post_id');
+        $i_username = auth()->user()->username;
+
             // Gọi thủ tục handleReact
-            $result = DB::select("CALL createComment(:i_content, :i_post_id, :i_username, :i_created_at)", [
+        $result = DB::select("CALL createComment(:i_content, :i_post_id, :i_username, :i_created_at)", [
                 'i_content' => $i_content,
                 'i_post_id' => $i_post_id,
                 'i_username' => $i_username,
                 'i_created_at' => date('Y-m-d H:i:s'),
-            ]);
-            $noti_id = $result[0]->noti_id;
-            $data = $this->notification->getById($noti_id);
+        ]);
+        $noti_id = $result[0]->noti_id;
+        $data = $this->notification->getById($noti_id);
 
-            $jsonStr = json_encode($data);
-            event(new Message($jsonStr));
+        $jsonStr = json_encode($data);
+        event(new Message($jsonStr));
 
             // Trả về kết quả
-            return response()->success($result, "Tạo comment thành công!", 201);
+        return response()->success($result, "Tạo comment thành công!", 201);
     }
 
     //sửa comment
     public function updateComment(Request $request)
     {
-        $i_comment_id = $request->input('comment_id');
-        $i_content = $request->input('content');
-        $i_post_id = $request->input('post_id');
         $validator = Validator::make($request->all(), [
             'content' => 'required',
             'commnet_id' => 'required',
@@ -156,8 +156,12 @@ class ActionController extends Controller
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        $i_comment_id = $request->input('comment_id');
+        $i_content = $request->input('content');
+        $i_post_id = $request->input('post_id');
+
 
         $result = DB::table('Comment')
             ->where('comment_id', $i_comment_id)
@@ -174,15 +178,16 @@ class ActionController extends Controller
     //xoá comment
     public function deleteComment(Request $request)
     {
-        $comment_id = $request->input('comment_id');
         $validator = Validator::make($request->all(), [
             'commnet_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        $comment_id = $request->input('comment_id');
+
 
         $result = DB::table('Comment')
             ->where('comment_id', $comment_id)
@@ -198,34 +203,38 @@ class ActionController extends Controller
     //lấy profile
     public function getProfile(Request $request)
     {
-        //dd(auth()->user()->username,$request->input('username'));
-        // Các tham số đầu vào
-        $i_current_username = auth()->user()->username;
-        $i_profile_username = $request->input('profile_username');
         $validator = Validator::make($request->all(), [
             'profile_username' => 'required',
         ]);
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        //dd(auth()->user()->username,$request->input('username'));
+        // Các tham số đầu vào
+        $i_current_username = auth()->user()->username;
+        $i_profile_username = $request->input('profile_username');
+
             // Gọi thủ tục handleReact
-            $result = DB::select("CALL getProfile(:i_current_username, :i_profile_username)", [
-                'i_current_username' => $i_current_username,
-                'i_profile_username' => $i_profile_username
-            ]);
-        return response()->success($result,"Lấy profile thành công", 200);
+        $result = DB::select("CALL getProfile(:i_current_username, :i_profile_username)", [
+            'i_current_username' => $i_current_username,
+            'i_profile_username' => $i_profile_username
+        ]);
+        $friends = DB::select("CALL getListFriend(:i_profile_username)", [
+            'i_profile_username' => $i_profile_username
+        ]);
+        $response = [
+            'profile' => $result,
+            'friends' => $friends,
+        ];
+        return response()->success($response,"Lấy profile thành công", 200);
     }
+
+
     //kết bạn, hủy kết bạn
     public function handleRelationship(Request $request)
     {
-        //dd(auth()->user()->username,$request->input('target_username'));
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        // Các tham số đầu vào
-        $i_action = $request->input('action');
-        $i_source_username = auth()->user()->username;
-        $i_target_username = $request->input('target_username');
         $validator = Validator::make($request->all(), [
             'action' => 'required',
             'target_username' => 'required',
@@ -233,8 +242,15 @@ class ActionController extends Controller
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        //dd(auth()->user()->username,$request->input('target_username'));
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        // Các tham số đầu vào
+        $i_action = $request->input('action');
+        $i_source_username = auth()->user()->username;
+        $i_target_username = $request->input('target_username');
+
 
             // Gọi thủ tục handleReact
             $result = DB::select("CALL handleRelationship(:i_action, :i_source_username, :i_target_username, :i_created_at)", [
@@ -246,18 +262,22 @@ class ActionController extends Controller
         return response()->success($result,"Thực hiện thành công", 200);
     }
 
+
+
+
     //tìm kiếm tài khoản và bài viết
     public function searchAccountsAndPosts(Request $request)
     {
-        $searchTerm = $request->input('search_term');
         $validator = Validator::make($request->all(), [
             'search_term' => 'required',
         ]);
 
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        $searchTerm = $request->input('search_term');
+
         try {
             // Tìm kiếm danh sách tài khoản và bài viết
             $matchedAccounts = Account::where('fullname', 'LIKE', '%' . $searchTerm . '%')
@@ -276,40 +296,45 @@ class ActionController extends Controller
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+
     // Cập nhật profile
     public function updateProfile(Request $request)
-    {
+    {           // Tạo validator để kiểm tra các trường
+        $validator = Validator::make($request->all(), [
+            'fullname' => 'nullable|regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u',
+            'location' => 'nullable',
+            'phone' => ['nullable', 'regex:/^[0-9]{10}$/', 'size:10'],
+            'about_me' => 'nullable',
+            'day_of_birth' => 'nullable',
+        ]);
+
+        // Kiểm tra validator
+        if ($validator->fails()) {
+            //
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         try{
             $username = auth()->user()->username;
-            $avatar = $request->input('avatar');
             $fullname = $request->input('fullname');
             $location = $request->input('location');
             $phone = $request->input('phone');
             $aboutme = $request->input('about_me');
+            $day_of_birth = $request->input('day_of_birth');
 
-            // Tạo validator để kiểm tra các trường
-            $validator = Validator::make($request->all(), [
-                'fullname' => 'nullable|regex:/^[\p{L}\p{M}\p{Pd}\p{Zs}\']+$/u',
-                'location' => 'nullable|address',
-                'phone' => 'nullable|phone',
-                'about_me' => 'nullable',
-            ]);
 
-            // Kiểm tra validator
-            if ($validator->fails()) {
-                //
-                response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
 
             // Cập nhật thông tin cá nhân trong cơ sở dữ liệu
             $result = DB::table('Account')
                     ->where('username', $username)
                     ->update([
-                        'avatar' => $avatar,
                         'fullname' => $fullname,
                         'location' => $location,
                         'phone' => $phone,
-                        'about_me' => $aboutme
+                        'about_me' => $aboutme,
+                        'day_of_birth' => $day_of_birth
                     ]);
             //dd($username,$avatar, $fullname,$location,$phone, $aboutme);
             // Trả về thông báo thành công
@@ -321,24 +346,25 @@ class ActionController extends Controller
 
     }
 
+
+
     //chức năng đổi mật khẩu
     public function changePassword(Request $request)
     {
-        $username = auth()->user()->username;
-        $currentPassword = $request->input('current_password');
-        $newPassword = $request->input('new_password');
-
-        // Tạo validator để kiểm tra các trường
+                // Tạo validator để kiểm tra các trường
         $validator = Validator::make($request->all(), [
-            'current_password' => 'required',
-            'new_password' => 'required|min:6',
+            'current_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+            'new_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
         ]);
 
         // Kiểm tra validator
         if ($validator->fails()) {
             //
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        $username = auth()->user()->username;
+        $currentPassword = $request->input('current_password');
+        $newPassword = $request->input('new_password');
 
 
         $result = DB::table('Account')
@@ -346,13 +372,14 @@ class ActionController extends Controller
             ->first();
 
         if (!$result) {
-            response()->error("người dùng không tồn tại", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("người dùng không tồn tại", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Kiểm tra mật khẩu hiện tại
         if (!Hash::check($currentPassword, $result->password)) {
-            response()->error("Mật khẩu hiện tại không đúng", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("Mật khẩu hiện tại không đúng", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
 
         // Mã hóa mật khẩu mới
         $hashedPassword = Hash::make($newPassword);
@@ -362,14 +389,14 @@ class ActionController extends Controller
                     ->where('username', $username)
                     ->update([
                         'password' => $hashedPassword,
-                // Cập nhật các trường khác tại đây (nếu có)
+
             ]);
 
         // Kiểm tra kết quả của câu truy vấn update
         if ($result) {
             return response()->success($result, 'Cập nhật mật khẩu thành công', 200);
         } else {
-            response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
