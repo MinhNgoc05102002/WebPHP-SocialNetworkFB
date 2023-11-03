@@ -64,10 +64,9 @@ class AccountController extends Controller
             $imageInfo = array();
             if ($request->hasFile('media')) {
                 $image = $request->file('media');
-                $originalName = $image->getClientOriginalName();
                 $extension = $image->getClientOriginalExtension();
                 $randomString = uniqid();
-                $imageName = time() . '' . $originalName . '' . $randomString . '.' . $extension;
+                $imageName = time()  . '' . $randomString . '.' . $extension;
                 $image->move(public_path('storage/media'), $imageName);
                 $imageInfo[] = ['type' => $image->getClientOriginalExtension(),'name' => $imageName];
 
@@ -93,10 +92,9 @@ class AccountController extends Controller
             $imageInfo = array();
             if ($request->hasFile('media')) {
                 $image = $request->file('media');
-                $originalName = $image->getClientOriginalName();
                 $extension = $image->getClientOriginalExtension();
                 $randomString = uniqid();
-                $imageName = time() . '' . $originalName . '' . $randomString . '.' . $extension;
+                $imageName = time() . '' . $randomString . '.' . $extension;
                 $image->move(public_path('storage/media'), $imageName);
                 $imageInfo[] = ['type' => $image->getClientOriginalExtension(),'name' => $imageName];
 

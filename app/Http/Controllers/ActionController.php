@@ -121,7 +121,7 @@ class ActionController extends Controller
         $i_username = auth()->user()->username;
 
             // Gọi thủ tục handleReact
-            $result = DB::select("SELECT Comment.*,fullname from Comment
+            $result = DB::select("SELECT Comment.*,fullname,avatar from Comment
                                 JOIN Account
                                  on Comment.username = Account.username
                                  WHERE post_id = :i_post_id", [
