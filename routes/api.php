@@ -99,7 +99,4 @@ Route::post('/register', [AuthController::class,'register']);
 Route::post('/upload-file', [AuthController::class,'uploadFile']);
 Route::get('/media-file/{image}', [AuthController::class,'show']);
 Route::get('/notifi-realtime', [PostController::class,'demoNotification']);
-
-
-
-
+Route::post('/reset-password', [AccountController::class,'resetPassword']);
