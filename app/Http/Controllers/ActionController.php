@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use DB;
+use DateTime;
 
 
 class ActionController extends Controller
@@ -252,6 +253,29 @@ class ActionController extends Controller
         return response()->success($response,"Lấy profile thành công", 200);
     }
 
+    //lấy ds lời mời kết bạn và ds block
+    public function getRequest(Request $request)
+    {
+        //dd(auth()->user()->username,$request->input('username'));
+        // Các tham số đầu vào
+        $i_current_username = auth()->user()->username;
+
+        // Gọi thủ tục
+        $list_block = DB::select("CALL getListBlock(:i_current_username)", [
+            'i_current_username' => $i_current_username,
+        ]);
+
+        $list_request = DB::select("CALL getListRequest(:i_current_username)", [
+            'i_current_username' => $i_current_username
+        ]);
+
+        $response = [
+            "list_block" => $list_block,
+            "list_request" => $list_request
+        ];
+        return response()->success($response,"Lấy danh sách tài khoản", 200);
+    }
+
 
     //kết bạn, hủy kết bạn
     public function handleRelationship(Request $request)
@@ -312,7 +336,7 @@ class ActionController extends Controller
                             //->get();
             // Xử lý kết quả và trả về response
             return response()->success(['matched_accounts' => $matchedAccounts, 'matched_posts' => $matchedPosts],"Lấy dữ liệu thành công", 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Xử lý lỗi chung
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -345,7 +369,8 @@ class ActionController extends Controller
             $aboutme = $request->input('about_me');
             $day_of_birth = $request->input('day_of_birth');
             $gender = $request->input('gender');
-            dd($day_of_birth);
+
+            $day_of_birth = new DateTime($day_of_birth);
 
             // Cập nhật thông tin cá nhân trong cơ sở dữ liệu
             $result = DB::table('Account')
@@ -360,7 +385,10 @@ class ActionController extends Controller
                     ]);
             //dd($username,$avatar, $fullname,$location,$phone, $aboutme);
             // Trả về thông báo thành công
-            return response()->success($result, 'Cập nhật thông tin cá nhân thành công', 200);
+            $resAcc = DB::select("SELECT * from Account WHERE username = :username",[
+                'username' => $username
+            ]);
+            return response()->success($resAcc, 'Cập nhật thông tin cá nhân thành công', 200);
 
         }catch(Exception $ex){
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
