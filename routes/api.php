@@ -78,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/search-accounts-posts', [ActionController::class,'searchAccountsAndPosts']);
         Route::post('/update-profile', [ActionController::class,'updateProfile']);
         Route::post('/change-password', [ActionController::class,'changePassword']);
+        Route::post('/get-list-account', [ActionController::class,'getRequest']);
     });
 
     Route::prefix('notification')->group(function () {

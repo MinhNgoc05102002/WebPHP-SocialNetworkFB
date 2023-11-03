@@ -64,7 +64,6 @@ class AdminController extends Controller
                 200);
 
         } catch (Exception $e) {
-            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -93,7 +92,6 @@ class AdminController extends Controller
                 200);
 
         } catch (Exception $e) {
-            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -122,7 +120,6 @@ class AdminController extends Controller
                 200);
 
         } catch (Exception $e) {
-            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -150,7 +147,6 @@ class AdminController extends Controller
                 200);
 
         } catch (Exception $e) {
-            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -177,7 +173,6 @@ class AdminController extends Controller
                 200);
 
         } catch (Exception $e) {
-            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -204,7 +199,6 @@ class AdminController extends Controller
                 200);
 
         } catch (Exception $e) {
-            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -231,7 +225,6 @@ class AdminController extends Controller
                 200);
 
         } catch (Exception $e) {
-            throw $e;
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
