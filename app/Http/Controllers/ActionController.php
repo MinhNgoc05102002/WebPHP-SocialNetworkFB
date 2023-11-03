@@ -269,9 +269,14 @@ class ActionController extends Controller
             'i_current_username' => $i_current_username
         ]);
 
+        $list_friend = DB::select("CALL getListFriend(:i_current_username)", [
+            'i_current_username' => $i_current_username
+        ]);
+
         $response = [
             "list_block" => $list_block,
-            "list_request" => $list_request
+            "list_request" => $list_request,
+            "list_friend"=> $list_friend
         ];
         return response()->success($response,"Lấy danh sách tài khoản", 200);
     }
