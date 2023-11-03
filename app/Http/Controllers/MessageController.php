@@ -11,6 +11,7 @@ use App\Models\ChatSession;
 use App\Models\AccountHasChatSession;
 use App\Models\Account;
 use App\Events\MessageEvent;
+use App\Events\ChatSessionEvent;
 
 use DB;
 
@@ -113,12 +114,21 @@ class MessageController extends Controller
             $message->save();
 
             //gửi event
-            $jsonStr = json_encode($message);
+            $jsonStrMess = json_encode($message);
+            $jsonStrSession = json_encode([
+                "type" => "U",
+                "chat_id" => $message->chat_id,
+                "new_message" => $message->message
+            ]);
             $partnerAccounts = $this->getChatPartner($chatId);
 
             foreach ($partnerAccounts as $partner){
                 $nameChanel = $chatId.".".$partner->username;
-                event(new MessageEvent($jsonStr, $nameChanel));
+                $nameChanelSession = $partner->username;
+
+                event(new MessageEvent($jsonStrMess, $nameChanel));
+                
+                event(new ChatSessionEvent($jsonStrSession, $nameChanelSession));
             }
 
             return response()->success($message, 'Tin nhắn đã được gửi(thêm)!', 201);
@@ -215,6 +225,17 @@ class MessageController extends Controller
                 'i_current_username' => $currUsername,
                 'i_partner_username' => $partnerUsername,
             ]);
+            $avatar = ''; $fullname = '';
+            $avatar = $result[0]->avatar;
+            $fullname = $result[0]->fullname;
+            $jsonStrSession = json_encode([
+                "type" => "C",
+                "chat_id" => $result[0]->chat_id,
+                "avatar" => $avatar,
+                "fullname" => $fullname,
+            ]);
+            $nameChanelSession = $partnerUsername;
+            event(new ChatSessionEvent($jsonStrSession, $nameChanelSession));
             // dd( $result);
             $chat_id = '';
             $chat_id = $result[0]->chat_id;
