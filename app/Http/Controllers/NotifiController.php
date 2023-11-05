@@ -16,7 +16,7 @@ use Exception;
 
 class NotifiController extends Controller
 {
-    protected $notification;  
+    protected $notification;
     public function __construct(Notification $notification) {
         $this->notification = $notification;
     }
@@ -29,16 +29,17 @@ class NotifiController extends Controller
         }
         try {
             $query = "SELECT n.*,a.fullname,c.value as content_noti,a.avatar FROM Notification n
-                      INNER JOIN Account a ON n.sender_username = a.username
-                      INNER JOIN Classification c ON c.code = n.noti_type 
-                      WHERE n.username = :username";
+                      LEFT JOIN Account a ON n.sender_username = a.username
+                      INNER JOIN Classification c ON c.code = n.noti_type
+                      WHERE n.username = :username
+                      ORDER BY n.created_at DESC";
             $lstNoti = DB::select($query, ['username' => $username]);
-            
+
             return response()->success($lstNoti,"Lấy danh sách thành công", Response::HTTP_OK);
         } catch (Throwable $th) {
             throw $th;
         }
-    }    
+    }
 
     public function demoNotification(Request $request){
         $data = [

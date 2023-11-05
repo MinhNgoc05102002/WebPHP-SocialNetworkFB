@@ -43,6 +43,7 @@ class AuthController extends Controller
             return response()->error('email hoặc username đã tồn tại.',400);
         }
         date_default_timezone_set('Asia/Ho_Chi_Minh');
+        $avatar = "default_avt.png";
         $account = Account::create([
             'fullname' => $request->input('fullname'),
             'username' => $request->input('username'),
@@ -50,17 +51,16 @@ class AuthController extends Controller
             'email' => $request->input('email'),
             'day_of_birth' => date_create($request->input('day_of_birth')),//date('Y-m-d H:i:s', $request->input('day_of_birth')),
             'gender' => $request->input('gender'),
-            'created_at' => date('Y-m-d H:i:s')
+            'created_at' => date('Y-m-d H:i:s'),
+            'avatar' => $avatar,
         ]);
+
         if(!$account){
             return response()->error('Không thể tạo tài khoản.', 500);
         }
-        return response()->success($account, 'Tài khoản đã được tạo thành công.', 200);
-            if(!$account){
-                return response()->error('Không thể tạo tài khoản.', 500);
-            }
 
-            return response()->success($account, 'Tài khoản đã được tạo thành công.', 200);
+        return response()->success($account, 'Tài khoản đã được tạo thành công.', 200);
+
         }catch(Exception $ex){
             throw $ex;
         }
@@ -116,6 +116,9 @@ class AuthController extends Controller
             // Xác thực người dùng và lấy thông tin người dùng
             if (Auth::attempt($request->only($login_type, 'password'))) {
                 $user = Auth::user();
+                if($user->status == "BLOCK"){
+                    return response()->error('Tài khoản của bạn đã bị khóa !', 403);
+                }
                 // Tạo token Sanctum cho người dùng
                 $token = $user->createToken('token-name')->plainTextToken;
 
@@ -136,7 +139,16 @@ class AuthController extends Controller
                 return response()->success($result,"Đăng nhập thành công !",200);
             }
             // Xác thực thất bại
-            return response()->error('Sai tài khoản này không tồn tại !', 200);
+
+            // Kiểm tra xem tài khoản tồn tại trong cơ sở dữ liệu
+            $userExists = Account::where($login_type, $request[$login_type])->first();
+            if ($userExists) {
+                // Nếu tài khoản tồn tại, thì sai mật khẩu
+                return response()->error('Sai mật khẩu !', 401);
+            } else {
+                // Nếu tài khoản không tồn tại, thì sai tài khoản
+                return response()->error('Tài khoản không tồn tại !', 402);
+            }
         } catch (Exception $th) {
             throw $th;
         }

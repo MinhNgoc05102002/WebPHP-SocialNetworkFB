@@ -215,7 +215,7 @@ class MessageController extends Controller
 
     public function getChatSessionByUsername(Request $request){
         $currUsername = auth()->user()->username;
-        $partnerUsername = $request->input('username');
+        $partnerUsername = (string)$request->input('username');
         if (!$partnerUsername){
             return response()->error('Không tìm thấy gì!', Response::HTTP_NOT_FOUND);
         }
