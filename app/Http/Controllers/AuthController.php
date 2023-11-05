@@ -29,13 +29,13 @@ class AuthController extends Controller
                     'username' => ['required', 'regex:/^[a-zA-Z0-9_-]+$/'],
                     'password'=> ['required', 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
                     'email'=>['required','email'],
-                    'day_of_birth'=>['required'],
+                    // 'day_of_birth'=>['required'],
                     'gender'=>['required'],
                 ]
             );
         if ($validator->fails()) {
             // Xử lý khi có lỗi trong validator
-            return response()->error($validator->errors(), 400);
+            return response()->error($validator->errors(), 401);
         }
 
         // $accountModel = new Account();
@@ -48,7 +48,7 @@ class AuthController extends Controller
             'username' => $request->input('username'),
             'password' => Hash::make($request->input('password')),
             'email' => $request->input('email'),
-            'day_of_birth' => date($request->input('day_of_birth')),
+            'day_of_birth' => date_create($request->input('day_of_birth')),//date('Y-m-d H:i:s', $request->input('day_of_birth')),
             'gender' => $request->input('gender'),
             'created_at' => date('Y-m-d H:i:s')
         ]);

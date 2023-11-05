@@ -406,16 +406,16 @@ class ActionController extends Controller
     //chức năng đổi mật khẩu
     public function changePassword(Request $request)
     {
-                // Tạo validator để kiểm tra các trường
+        // Tạo validator để kiểm tra các trường
         $validator = Validator::make($request->all(), [
-            'current_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+            // 'current_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
             'new_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
         ]);
 
         // Kiểm tra validator
         if ($validator->fails()) {
             //
-            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("đã xảy ra lỗi validate", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $username = auth()->user()->username;
         $currentPassword = $request->input('current_password');
@@ -427,7 +427,11 @@ class ActionController extends Controller
             ->first();
 
         if (!$result) {
-            return response()->error("người dùng không tồn tại", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error("Người dùng không tồn tại", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        if ($currentPassword == $newPassword) {
+            return response()->error("Mật khẩu cũ trùng với mật khẩu mới", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Kiểm tra mật khẩu hiện tại

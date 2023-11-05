@@ -127,7 +127,7 @@ class MessageController extends Controller
                 $nameChanelSession = $partner->username;
 
                 event(new MessageEvent($jsonStrMess, $nameChanel));
-                
+
                 event(new ChatSessionEvent($jsonStrSession, $nameChanelSession));
             }
 
@@ -225,7 +225,8 @@ class MessageController extends Controller
                 'i_current_username' => $currUsername,
                 'i_partner_username' => $partnerUsername,
             ]);
-            $avatar = ''; $fullname = '';
+            $avatar = '';
+            $fullname = '';
             $avatar = $result[0]->avatar;
             $fullname = $result[0]->fullname;
             $jsonStrSession = json_encode([
