@@ -118,20 +118,21 @@ class AccountController extends Controller
             ->where('email', $email)
             ->first();
         if (!$account) {
-            return response()->error('Không tìm thấy account nào có email này!',400);
+            return response()->error('Địa chỉ Email này không tồn tại !',400);
         }
-        $randomCode = bin2hex(random_bytes(4));
+        $newPassword = bin2hex(random_bytes(4));
+        $hashPassword = Hash::make($newPassword);
         $mailData = [
             'title' => 'Đặt lại mật khẩu cho tài khoản mạng xã hội',
             'body' => 'Bạn đang cố gắng đặt lại mật khẩu cho tài khoản mạng xã hội Facebook, tuyệt đối không chia sẻ mật khẩu này cho bất kì ai, với bất kì lý do gì. Mật khẩu mới của bạn là: ',
-            'confirmationCode' => $randomCode,
+            'confirmationCode' => $newPassword,
             'email' => $email,
         ];
         try {
             DB::table('Account')
                     ->where('email', $email)
                     ->update([
-                        'password' => $randomCode,
+                        'password' => $hashPassword,
                     ]);
             Mail::to($request->email)->send(new SendMail($mailData));
             return response()->success([], 'Gửi mail đặt lại mật khẩu thành công!', 200);        }
