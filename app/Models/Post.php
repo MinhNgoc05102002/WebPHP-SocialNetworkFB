@@ -46,7 +46,7 @@ class Post extends Model
     }
 
     public function getPostById($id,$username){
-        $post = DB::select("SELECT t1.*, t2.fullname, react_type1, react_type2, react_type3, React.react_type current_react_type  
+        $post = DB::select("SELECT t1.*, t2.fullname,t2.avatar, react_type1, react_type2, react_type3, React.react_type current_react_type  
         FROM Post t1 
         JOIN Account t2 on t2.username = t1.username
         left join (
@@ -89,7 +89,7 @@ class Post extends Model
             'audience_type' => $data['audience_type'],
             'media_info' => $mediaJson
         ]);
-        $post = DB::select('SELECT Post.*, Account.fullname FROM Post JOIN Account on Post.username = Account.username WHERE post_id = :post_id',[
+        $post = DB::select('SELECT Post.*, Account.fullname,Account.avatar FROM Post JOIN Account on Post.username = Account.username WHERE post_id = :post_id',[
             'post_id' => $insertedId
         ]);
         return $post[0];
@@ -110,7 +110,7 @@ class Post extends Model
                 'media_info' => $mediaJson,
             ]);
         if($isUpdate){
-            $updatedPost = DB::select('SELECT Post.*, Account.fullname FROM Post JOIN Account on Post.username = Account.username WHERE post_id = :post_id',[
+            $updatedPost = DB::select('SELECT Post.*, Account.fullname,Account.avatar FROM Post JOIN Account on Post.username = Account.username WHERE post_id = :post_id',[
                 'post_id' => $data['id_post']
             ]);
 

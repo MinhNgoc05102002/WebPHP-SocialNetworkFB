@@ -80,7 +80,9 @@ class ActionController extends Controller
                 $data = $this->notification->getById($noti_id);
 
                 $jsonStr = json_encode($data);
-                event(new NotificationEvent($jsonStr,$result[0]->username));
+                if($data[0]->username != $i_username){
+                    event(new NotificationEvent($jsonStr,$data[0]->username));
+                }
             }
             // Trả về kết quả
             return response()->success($result,"Thực hiện thành công rồi!", 201);
@@ -161,9 +163,10 @@ class ActionController extends Controller
         $noti_id = $result[0]->noti_id;
         $data = $this->notification->getById($noti_id);
 
-            $jsonStr = json_encode($data);
+        $jsonStr = json_encode($data);
+        if($data[0]->username != $i_username){
             event(new NotificationEvent($jsonStr,$data[0]->username));
-
+        }
             // Trả về kết quả
         return response()->success($result, "Tạo comment thành công!", 201);
     }
@@ -320,30 +323,39 @@ class ActionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'search_term' => 'required',
+            'page_index' => 'required',
+            'page_count' => 'required',
         ]);
 
         if ($validator->fails()) {
             //
-            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($validator->messages(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $searchTerm = $request->input('search_term');
+        $pageIndex = $request->input('page_index');
+        $pageCount = $request->input('page_count');
 
         try {
             // Tìm kiếm danh sách tài khoản và bài viết
             $matchedAccounts = Account::where('fullname', 'LIKE', '%' . $searchTerm . '%')
-                            ->select('fullname', 'avatar', 'number_friend')
-                            ->paginate(10);
-                            //->get();
+                                ->select('fullname', 'avatar', 'number_friend','username')
+                                ->skip(($pageIndex - 1) * $pageCount)
+                                ->take($pageCount)
+                                ->get();
             $matchedPosts = Post::where('content', 'LIKE', '%' . $searchTerm . '%')
+                            ->where('audience_type', '!=', 'ONLY_ME')
+                            ->where('is_deleted', '!=', 1) 
+                            ->where('Post.status', '!=', 'BLOCK') 
                             ->join('Account', 'Post.username', '=', 'Account.username')
                             ->select('Post.*', 'Account.avatar', 'Account.fullname')
-                            ->paginate(10);
-                            //->get();
+                            ->skip(($pageIndex - 1) * $pageCount)
+                            ->take($pageCount)
+                            ->get();
             // Xử lý kết quả và trả về response
             return response()->success(['matched_accounts' => $matchedAccounts, 'matched_posts' => $matchedPosts],"Lấy dữ liệu thành công", 200);
         } catch (Exception $e) {
             // Xử lý lỗi chung
-            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
