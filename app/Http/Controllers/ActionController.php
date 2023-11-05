@@ -305,13 +305,22 @@ class ActionController extends Controller
         $i_target_username = $request->input('target_username');
 
 
-            // Gọi thủ tục handleReact
-            $result = DB::select("CALL handleRelationship(:i_action, :i_source_username, :i_target_username, :i_created_at)", [
-                'i_action' => $i_action,
-                'i_source_username' => $i_source_username,
-                'i_target_username' => $i_target_username,
-                'i_created_at' => date('Y-m-d H:i:s'),
-            ]);
+        // Gọi thủ tục handleReact
+        $result = DB::select("CALL handleRelationship(:i_action, :i_source_username, :i_target_username, :i_created_at)", [
+            'i_action' => $i_action,
+            'i_source_username' => $i_source_username,
+            'i_target_username' => $i_target_username,
+            'i_created_at' => date('Y-m-d H:i:s'),
+        ]);
+        if($i_action == "ACCEPT" || $i_action == "ADD_FRIEND"){
+            $noti_id = $result[0]->id_noti;
+            $data = $this->notification->getById($noti_id);
+    
+            $jsonStr = json_encode($data);
+            if($data[0]->username != $i_source_username){
+                event(new NotificationEvent($jsonStr,$data[0]->username));
+            }
+        }
         return response()->success($result,"Thực hiện thành công", 200);
     }
 
