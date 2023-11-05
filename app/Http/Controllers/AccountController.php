@@ -11,6 +11,10 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Auth;
 use DB;
 
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use App\Service\SendMail;
+
 class AccountController extends Controller
 {
     //
@@ -106,6 +110,34 @@ class AccountController extends Controller
          } catch (Throwable $th) {
              throw $th;
          }
+    }
+
+    public function resetPassword(Request $request) {
+        $email = $request->input('email');
+        $account = DB::table('Account')
+            ->where('email', $email)
+            ->first();
+        if (!$account) {
+            return response()->error('Không tìm thấy account nào có email này!',400);
+        }
+        $randomCode = bin2hex(random_bytes(4));
+        $mailData = [
+            'title' => 'Đặt lại mật khẩu cho tài khoản mạng xã hội',
+            'body' => 'Bạn đang cố gắng đặt lại mật khẩu cho tài khoản mạng xã hội Facebook, tuyệt đối không chia sẻ mật khẩu này cho bất kì ai, với bất kì lý do gì. Mật khẩu mới của bạn là: ',
+            'confirmationCode' => $randomCode,
+            'email' => $email,
+        ];
+        try {
+            DB::table('Account')
+                    ->where('email', $email)
+                    ->update([
+                        'password' => $randomCode,
+                    ]);
+            Mail::to($request->email)->send(new SendMail($mailData));
+            return response()->success([], 'Gửi mail đặt lại mật khẩu thành công!', 200);        }
+        catch (Exception $e) {
+            return response()->error('Gửi mail không thành công!',400);
+        }
     }
 }
 //route -----
