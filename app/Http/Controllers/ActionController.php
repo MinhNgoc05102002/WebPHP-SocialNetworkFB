@@ -353,8 +353,8 @@ class ActionController extends Controller
                                 ->get();
             $matchedPosts = Post::where('content', 'LIKE', '%' . $searchTerm . '%')
                             ->where('audience_type', '!=', 'ONLY_ME')
-                            ->where('is_deleted', '!=', 1) 
-                            ->where('Post.status', '!=', 'BLOCK') 
+                            ->where('is_deleted', '!=', 1)
+                            ->where('Post.status', '!=', 'BLOCK')
                             ->join('Account', 'Post.username', '=', 'Account.username')
                             ->select('Post.*', 'Account.avatar', 'Account.fullname')
                             ->skip(($pageIndex - 1) * $pageCount)
