@@ -92,6 +92,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+Route::post('/get-post-admin-by-id', [PostController::class,'getPostAdminById']);
+
 // public router
 Route::get('/check-login', [AuthController::class,'checkLogin']);
 Route::post('/login', [AuthController::class,'login']);

@@ -169,8 +169,30 @@ class PostController extends Controller
             dd($th);
             return response()->error($th, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
     }
+
+    public function getPostAdminById(Request $request){
+        $validator = Validator::make($request->all(),
+        [
+            'post_id'=>'required|string',
+        ]
+        );
+        if ($validator->fails()) {
+            // Xử lý khi validation thất bại, ví dụ trả về lỗi
+            return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        try {
+        $post = $this->post->getPostAdminById($request->input("post_id"));
+        if($post){
+            return response()->success($post,"Lấy chi tiết bài viết thành công", Response::HTTP_OK);
+        }else{
+            return response()->error("Không tồn tại post", Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+    } catch (\Throwable $th) {
+        dd($th);
+        return response()->error($th, Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+}
 
     public function demoNotification(Request $request){
         $data = [
