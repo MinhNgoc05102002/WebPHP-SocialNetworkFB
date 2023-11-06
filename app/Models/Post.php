@@ -18,7 +18,7 @@ class Post extends Model
         $count_page = intval($pageCount);
         $index_page = intval($pageIndex);
         $post = [];
-        $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[ 
+        $post = DB::select("CALL getHomePost(:current_username, :page_index, :page_size)",[
             'current_username' => $username,
             'page_index' => $index_page,
             'page_size' => $count_page,
@@ -46,8 +46,8 @@ class Post extends Model
     }
 
     public function getPostById($id,$username){
-        $post = DB::select("SELECT t1.*, t2.fullname,t2.avatar, react_type1, react_type2, react_type3, React.react_type current_react_type  
-        FROM Post t1 
+        $post = DB::select("SELECT t1.*, t2.fullname,t2.avatar, react_type1, react_type2, react_type3, React.react_type current_react_type
+        FROM Post t1
         JOIN Account t2 on t2.username = t1.username
         left join (
             SELECT post_id,
@@ -60,11 +60,11 @@ class Post extends Model
                 WHERE post_id = :post_id_1
                 GROUP BY react_type, post_id
             ) AS subquery
-            WHERE subquery.react_rank <= 3 
-            group by post_id) top_like_table on t1.post_id = top_like_table.post_id 
+            WHERE subquery.react_rank <= 3
+            group by post_id) top_like_table on t1.post_id = top_like_table.post_id
             left join React on React.post_id = t1.post_id and React.username = :username
             WHERE t1.post_id = :post_id_2;
-            ",[ 
+            ",[
                 'post_id_1' => intval($id),
                 'post_id_2' => intval($id),
                 'username' => $username
@@ -74,8 +74,8 @@ class Post extends Model
     }
 
     public function getPostAdminById($id){
-        $post = DB::select("SELECT t1.*, t2.fullname,t2.avatar, react_type1, react_type2, react_type3, React.react_type current_react_type  
-        FROM Post t1 
+        $post = DB::select("SELECT t1.*, t2.fullname,t2.avatar, react_type1, react_type2, react_type3, React.react_type current_react_type
+        FROM Post t1
         JOIN Account t2 on t2.username = t1.username
         left join (
             SELECT post_id,
@@ -88,11 +88,11 @@ class Post extends Model
                 WHERE post_id = :post_id_1
                 GROUP BY react_type, post_id
             ) AS subquery
-            WHERE subquery.react_rank <= 3 
-            group by post_id) top_like_table on t1.post_id = top_like_table.post_id 
+            WHERE subquery.react_rank <= 3
+            group by post_id) top_like_table on t1.post_id = top_like_table.post_id
             left join React on React.post_id = t1.post_id and React.username = 'Admin'
             WHERE t1.post_id = :post_id_2;
-            ",[ 
+            ",[
                 'post_id_1' => intval($id),
                 'post_id_2' => intval($id),
             ]);
@@ -163,7 +163,7 @@ class Post extends Model
     public function getNumNewPost(){
         $num = DB::select(' SELECT count(*) as num_new_post
                             FROM Post
-                            WHERE datediff(created_at, now()) <= 7; ');
+                            WHERE datediff(created_at, now()) <= 30; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_post;
     }

@@ -85,6 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
 		Route::post('/change-avatar', [AccountController::class,'uploadAvatar']);
 		Route::post('/change-cover-bg', [AccountController::class,'uploadCoverBackground']);
 		Route::post('/get-list-account', [ActionController::class,'getRequest']);
+        Route::post('/report-post', [ActionController::class,'reportPost']);
     });
 
     Route::prefix('notification')->group(function () {

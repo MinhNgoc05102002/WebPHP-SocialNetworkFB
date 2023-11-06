@@ -29,6 +29,8 @@ class Account extends Authenticatable
         'day_of_birth',
         'gender',
         'created_at',
+        'avatar',
+        'cover'
     ];
 
     /**
@@ -51,7 +53,7 @@ class Account extends Authenticatable
     public function getNumNewAccount(){
         $num = DB::select(' SELECT count(*) as num_new_acc
                             FROM Account
-                            WHERE datediff(now(), created_at) <= 7; ');
+                            WHERE datediff(now(), created_at) <= 30; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_acc;
     }
@@ -59,7 +61,7 @@ class Account extends Authenticatable
     public function getNumNewBlock(){
         $num = DB::select(' SELECT count(*) as num_new_block
                             FROM Account
-                            WHERE datediff(modified_date, now()) <= 7 AND
+                            WHERE datediff(modified_date, now()) <= 30 AND
                                   status = \'BLOCK\'; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_block;
@@ -157,12 +159,16 @@ class Account extends Authenticatable
         $status = DB::select('SELECT status FROM Account WHERE username = ? ;', [$username]);
         date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-        DB::select("call createNoti (:i_noti_type, :i_link, :i_sender_username, :i_username, :i_created_at);",[
+        DB::select("call createNoti (:i_noti_type, :i_link, :i_sender_username, :i_username, :i_created_at, @out_param);",[
             'i_noti_type' => 'ADMIN',
             'i_link' => '',
-            'i_sender_username' => 'ADMIN',
+            'i_sender_username' => '',
             'i_username' => $username,
             'i_created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        DB::update("UPDATE ACCOUNT SET has_warning = has_warning + 1 WHERE username = :username;",[
+            'username' => $username,
         ]);
     }
 }

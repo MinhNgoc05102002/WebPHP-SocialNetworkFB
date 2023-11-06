@@ -10,17 +10,23 @@ use App\Models\Account;
 use App\Models\Report;
 use Exception;
 use Illuminate\Support\Facades\Validator;
+use DB;
+use DateTime;
+use App\Events\NotificationEvent;
+use App\Models\Notification;
 
 class AdminController extends Controller
 {
     protected $post;
     protected $account;
     protected $report;
+    protected $notification;
 
-    public function __construct(Post $_post, Account $_account, Report $_report) {
+    public function __construct(Post $_post, Account $_account, Report $_report, Notification $_notification) {
         $this->post = $_post;
         $this->account = $_account;
         $this->report = $_report;
+        $this->notification=$_notification;
     }
 
     public function getOverview(Request $request) {
@@ -180,7 +186,7 @@ class AdminController extends Controller
     public function handleBlockPost(Request $request) {
         $validator = Validator::make($request->all(),
         [
-         'blocked_post_id'=>'required|string',
+         'blocked_post_id'=>'required',
         ]);
 
         if ($validator->fails()) {
@@ -217,15 +223,34 @@ class AdminController extends Controller
         try {
             $username = $request->input('username');
 
-            $this->account->sendWarningAcc($username); // status gửi tbao thành công hay thất bại
+            // $this->account->sendWarningAcc($username); // status gửi tbao thành công hay thất bại
+
+            date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+            $result = DB::select("call createNotiAdmin (:i_noti_type, :i_link, :i_sender_username, :i_username, :i_created_at);",[
+                'i_noti_type' => 'ADMIN',
+                'i_link' => '',
+                'i_sender_username' => '',
+                'i_username' => $username,
+                'i_created_at' => date('Y-m-d H:i:s'),
+            ]);
+            DB::update("UPDATE Account SET has_warning = has_warning + 1 WHERE username = :username;",[
+                'username' => $username,
+            ]);
+
+            $noti_id = $result[0]->noti_id;
+            $data = $this->notification->getById($noti_id);
+
+            $jsonStr = json_encode($data);
+            event(new NotificationEvent($jsonStr,$data[0]->username));
 
             // Trả về response thành công
-            return response()->success($username,
+            return response()->success($result,
                 "Gửi thông báo thành công",
                 200);
 
         } catch (Exception $e) {
-            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->error($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
