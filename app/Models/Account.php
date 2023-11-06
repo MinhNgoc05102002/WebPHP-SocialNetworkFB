@@ -29,7 +29,8 @@ class Account extends Authenticatable
         'day_of_birth',
         'gender',
         'created_at',
-        'avatar'
+        'avatar',
+        'cover'
     ];
 
     /**
@@ -52,7 +53,7 @@ class Account extends Authenticatable
     public function getNumNewAccount(){
         $num = DB::select(' SELECT count(*) as num_new_acc
                             FROM Account
-                            WHERE datediff(now(), created_at) <= 7; ');
+                            WHERE datediff(now(), created_at) <= 30; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_acc;
     }
@@ -60,7 +61,7 @@ class Account extends Authenticatable
     public function getNumNewBlock(){
         $num = DB::select(' SELECT count(*) as num_new_block
                             FROM Account
-                            WHERE datediff(modified_date, now()) <= 7 AND
+                            WHERE datediff(modified_date, now()) <= 30 AND
                                   status = \'BLOCK\'; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_block;

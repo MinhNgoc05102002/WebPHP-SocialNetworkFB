@@ -11,11 +11,16 @@ class Report extends Model
     use HasFactory;
     protected $table = 'Report';
     public $timestamps = false;
+    protected $fillable = [
+        'username',
+        'created_at',
+        'post_id'
+    ];
 
     public function getNumNewReport(){
         $num = DB::select(' SELECT count(*) as num_new_report
                             FROM Report
-                            WHERE datediff(created_at, now()) <= 7; ');
+                            WHERE datediff(created_at, now()) <= 30; ');
         if(count($num) == 0) return null;
         return $num[0]->num_new_report;
     }

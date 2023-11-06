@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
+use App\Models\Report;
 use App\Models\Post;
 use App\Models\React;
 use App\Events\NotificationEvent;
@@ -24,15 +25,16 @@ class ActionController extends Controller
     //
     protected $react;
     protected $notification;
+    protected $report;
 
 
-    public function __construct(Account $_account,Post $_post ,  React $_react,  Notification $_notification)
+    public function __construct(Account $_account,Post $_post ,  React $_react,  Notification $_notification, Report $_report)
     {
         $this->post=$_post;
         $this->account = $_account;
         $this->react=$_react;
         $this->notification=$_notification;
-
+        $this->report = $_report;
     }
 
     public function getResultview(Request $request)
@@ -315,7 +317,7 @@ class ActionController extends Controller
         if($i_action == "ACCEPT" || $i_action == "ADD_FRIEND"){
             $noti_id = $result[0]->id_noti;
             $data = $this->notification->getById($noti_id);
-    
+
             $jsonStr = json_encode($data);
             if($data[0]->username != $i_source_username){
                 event(new NotificationEvent($jsonStr,$data[0]->username));
@@ -478,6 +480,33 @@ class ActionController extends Controller
         } else {
             return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    //báo cáo bài viết
+    public function reportPost(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'post_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->error("Đã xảy ra lỗi validate", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $i_post_id = $request->input('post_id');
+        $username = auth()->user()->username;
+
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        $report = Report::create([
+            'username' => $username,
+            'created_at' => date('Y-m-d H:i:s'),
+            'post_id' => $i_post_id,
+        ]);
+
+        // Trả về thông báo
+        return response()->success($report, "Gửi báo cáo thành công", 200);
+        // Trả về kết quả
+
     }
 }
 

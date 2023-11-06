@@ -53,6 +53,7 @@ class AuthController extends Controller
             'gender' => $request->input('gender'),
             'created_at' => date('Y-m-d H:i:s'),
             'avatar' => $avatar,
+            'cover' => 'default_cover.PNG',
         ]);
 
         if(!$account){
