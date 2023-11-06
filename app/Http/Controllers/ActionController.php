@@ -176,7 +176,7 @@ class ActionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'content' => 'required',
-            'commnet_id' => 'required',
+            'comment_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -204,7 +204,7 @@ class ActionController extends Controller
     public function deleteComment(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'commnet_id' => 'required',
+            'comment_id' => 'required',
         ]);
 
         if ($validator->fails()) {
