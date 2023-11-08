@@ -497,6 +497,17 @@ class ActionController extends Controller
         $username = auth()->user()->username;
 
         date_default_timezone_set('Asia/Ho_Chi_Minh');
+
+        $is_reported = DB::select("Select * from Report where username = :username and post_id = :post_id", [
+            'username' => $username,
+            'post_id' => $i_post_id,
+        ]);
+
+        if ($is_reported != null) {
+            // m cần t return về gì đây đức
+            return response()->success($is_reported, "Bạn đã report bài viết này trước đó", 401); // no data found à
+        }
+
         $report = Report::create([
             'username' => $username,
             'created_at' => date('Y-m-d H:i:s'),
