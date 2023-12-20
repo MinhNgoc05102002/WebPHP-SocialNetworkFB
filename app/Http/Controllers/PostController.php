@@ -19,7 +19,7 @@ use Exception;
 class PostController extends Controller
 {
     protected $post;
-    protected $account;   
+    protected $account;
     public function __construct(Post $_post,Account $account) {
         $this->post = $_post;
         $this->account = $account;
@@ -38,8 +38,8 @@ class PostController extends Controller
             // Xử lý khi validation thất bại, ví dụ trả về lỗi
             return response()->error($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        
-        
+
+
 
         try{
             $username = auth()->user()->username; // lấy username trong phiên đăng nhập
@@ -77,7 +77,7 @@ class PostController extends Controller
         }
     }
 
-    
+
 
     public function handlePost(PostRequest $request)
     {
@@ -94,7 +94,7 @@ class PostController extends Controller
                 if($func === 'C'){
                     // tạo bài viết
                     $newPost = $this->post->createPost($request->only('content','audience_type'),$username,$media);
-                    
+
                     return response()->success($newPost,"Tạo bài viết thành công !", 201);
                 }elseif($func === 'U'){
                     // cập nhật bài viết
@@ -114,7 +114,7 @@ class PostController extends Controller
                     }else{
                         return response()->error("Cập nhật bài viết thất bại", 401);
                     }
-    
+
                 }elseif($func === 'D'){
                     // Xóa bài viết
                     $postFind = Post::find($request->input('id_post'));
@@ -133,7 +133,7 @@ class PostController extends Controller
                         return response()->error("Bài viết không tồn tại !", 401);
                     }
 
-                    
+
                 }else{
                     return response()->error("Chức năng không tồn tại !", 401);
                 }
