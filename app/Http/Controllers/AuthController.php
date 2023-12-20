@@ -190,7 +190,7 @@ class AuthController extends Controller
                    $extension = $image->getClientOriginalExtension();
                    $randomString = uniqid();
                    $imageName = time() . '' . $randomString . '.' . $extension;
-                   $image->move(public_path('storage/media'), $imageName);
+                   $image->move(storage_path('app/public/media/'), $imageName);
                    $imageInfo[] = ['type' => $image->getClientOriginalExtension(),'name' => $imageName];
                }
                return response()->success(['file_info' => $imageInfo],'Tải lên ảnh thành công',200);
