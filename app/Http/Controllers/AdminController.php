@@ -211,9 +211,7 @@ class AdminController extends Controller
 
     public function sendWarningAcc(Request $request) {
         $validator = Validator::make($request->all(),
-        [
-         'username'=>'required|string',
-        ]);
+        ['username'=>'required|string',]);
 
         if ($validator->fails()) {
             // Xử lý khi validation thất bại, ví dụ trả về lỗi
@@ -223,10 +221,7 @@ class AdminController extends Controller
         try {
             $username = $request->input('username');
 
-            // $this->account->sendWarningAcc($username); // status gửi tbao thành công hay thất bại
-
             date_default_timezone_set('Asia/Ho_Chi_Minh');
-
             $result = DB::select("call createNotiAdmin (:i_noti_type, :i_link, :i_sender_username, :i_username, :i_created_at);",[
                 'i_noti_type' => 'ADMIN',
                 'i_link' => '',

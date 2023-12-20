@@ -429,57 +429,47 @@ class ActionController extends Controller
     //chức năng đổi mật khẩu
     public function changePassword(Request $request)
     {
-        // Tạo validator để kiểm tra các trường
-        $validator = Validator::make($request->all(), [
-            // 'current_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
-            'new_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
-        ]);
+// Tạo validator để kiểm tra các trường
+$validator = Validator::make($request->all(), [
+    'new_password' => ['required','regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+]);
+if ($validator->fails()) {
+    return response()->error("đã xảy ra lỗi validate", Response::HTTP_INTERNAL_SERVER_ERROR);
+}
+$username = auth()->user()->username;
+$currentPassword = $request->input('current_password');
+$newPassword = $request->input('new_password');
 
-        // Kiểm tra validator
-        if ($validator->fails()) {
-            //
-            return response()->error("đã xảy ra lỗi validate", Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-        $username = auth()->user()->username;
-        $currentPassword = $request->input('current_password');
-        $newPassword = $request->input('new_password');
+$result = DB::table('Account')
+    ->where('username', $username)
+    ->first();
 
+if (!$result) {
+    return response()->error("Người dùng không tồn tại", Response::HTTP_INTERNAL_SERVER_ERROR);
+}
+if ($currentPassword == $newPassword) {
+    return response()->error("Mật khẩu cũ trùng với mật khẩu mới", Response::HTTP_INTERNAL_SERVER_ERROR);
+}
+// Kiểm tra mật khẩu hiện tại
+if (!Hash::check($currentPassword, $result->password)) {
+    return response()->error("Mật khẩu hiện tại không đúng", Response::HTTP_INTERNAL_SERVER_ERROR);
+}
 
-        $result = DB::table('Account')
+// Mã hóa mật khẩu mới
+$hashedPassword = Hash::make($newPassword);
+
+$result = DB::table('Account')
             ->where('username', $username)
-            ->first();
+            ->update([
+                'password' => $hashedPassword,
+    ]);
 
-        if (!$result) {
-            return response()->error("Người dùng không tồn tại", Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        if ($currentPassword == $newPassword) {
-            return response()->error("Mật khẩu cũ trùng với mật khẩu mới", Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        // Kiểm tra mật khẩu hiện tại
-        if (!Hash::check($currentPassword, $result->password)) {
-            return response()->error("Mật khẩu hiện tại không đúng", Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-
-        // Mã hóa mật khẩu mới
-        $hashedPassword = Hash::make($newPassword);
-
-        // Tiếp tục câu truy vấn update
-        $result = DB::table('Account')
-                    ->where('username', $username)
-                    ->update([
-                        'password' => $hashedPassword,
-
-            ]);
-
-        // Kiểm tra kết quả của câu truy vấn update
-        if ($result) {
-            return response()->success($result, 'Cập nhật mật khẩu thành công', 200);
-        } else {
-            return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+// Kiểm tra kết quả của câu truy vấn update
+if ($result) {
+    return response()->success($result, 'Cập nhật mật khẩu thành công', 200);
+} else {
+    return response()->error("đã xảy ra lỗi", Response::HTTP_INTERNAL_SERVER_ERROR);
+}
     }
 
     //báo cáo bài viết

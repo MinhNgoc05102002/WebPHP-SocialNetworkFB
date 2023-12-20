@@ -76,7 +76,7 @@ class AccountController extends Controller
                         'avatar' => $imageName,
                     ]);
                 return response()->success($imageName,'Cập nhật avatar thành công',200);
-                
+
             }
             return response()->error('Cập nhật avatar thất bại !',400);
          } catch (Throwable $th) {
@@ -104,7 +104,7 @@ class AccountController extends Controller
                         'cover' => $imageName,
                     ]);
                 return response()->success($imageName,'Cập nhật cover background thành công',200);
-                
+
             }
             return response()->error('Cập nhật cover background thất bại !',400);
          } catch (Throwable $th) {
